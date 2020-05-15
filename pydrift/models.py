@@ -1,6 +1,15 @@
+import shap
 import pandas as pd
 
 from typing import List
+from typing_extensions import Protocol
+
+
+class ScikitModel(Protocol):
+    """Scikit model typing
+    """
+    def fit(self, X, y, verbose): ...
+    def predict_proba(self, X) -> object: ...
 
 
 def cat_features_fillna(df: pd.DataFrame,
@@ -21,3 +30,20 @@ def cat_features_fillna(df: pd.DataFrame,
             df_copy[cat] = df_copy[cat].fillna('UNKNOWN')
 
     return df_copy
+
+
+def explainer_plots(model: ScikitModel,
+                    X_train: pd.DataFrame,
+                    minimal: bool = False) -> None:
+    if not minimal:
+        explainer = shap.TreeExplainer(
+            model=model,
+            feature_perturbation='tree_path_dependent'
+        )
+
+        shap_values = explainer.shap_values(X_train)
+
+        shap.summary_plot(shap_values,
+                          X_train,
+                          plot_type='bar',
+                          title='Most Discriminative Features')
