@@ -16,6 +16,8 @@ typing-extensions = "^3.7.4"
 catboost = "^0.23"
 shap = "^0.35.0"
 pre-commit = "^2.4.0"
+pytest = "^5.4.2"
+coveralls = "^2.0.0"
 
 [tool.poetry.dev-dependencies]
 

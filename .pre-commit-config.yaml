@@ -3,3 +3,9 @@ repos:
     rev: 3.7.9
     hooks:
     - id: flake8
+      name: flake8 except __init__.py
+      args: [--exclude=__init__.py]
+    - id: flake8
+      name: flake8 only __init__.py
+      args: [--ignore=F401]  # ignore imported unused in __init__.py
+      files: __init__.py

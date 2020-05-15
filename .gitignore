@@ -89,10 +89,14 @@ target/
 # Mypy cache
 .mypy_cache/
 
+# pytest cache
+.pytest_cache/
+
 # poetry
 .python-version
-poetry.lock
 
 # catboost
 notebooks/catboost_info/
 notebooks/cb_model.json
+catboost_info/
+cb_model.json
