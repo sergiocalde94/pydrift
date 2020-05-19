@@ -4,12 +4,13 @@ import pandas as pd
 from sklearn.base import is_classifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_auc_score
-from sklearn.base import clone
 from catboost import CatBoostClassifier
 from scipy import stats
 from collections import defaultdict
+from typing import List
 
 from ..constants import RANDOM_STATE
+from ..exceptions import ColumnsNotMatchException
 from ..models import ScikitModel, cat_features_fillna, explainer_plots
 from ..data import compute_levels_count_and_pct
 
@@ -43,6 +44,28 @@ class DriftChecker(abc.ABC):
                 f'and {type(df_right_data)}'
             )
 
+        set_right_data_column_names = set(df_right_data.columns)
+        set_left_data_column_names = set(df_left_data.columns)
+
+        if set_right_data_column_names != set_left_data_column_names:
+            column_name_right_not_in_left = (
+                set_right_data_column_names
+                .difference(set_left_data_column_names)
+            )
+
+            column_name_left_not_in_right = (
+                set_left_data_column_names
+                .difference(set_right_data_column_names)
+            )
+
+            raise ColumnsNotMatchException(
+                'Different columns for left and right dataframes\n\n'
+                f'Columns in right dataframe but not in left one: '
+                f'{",".join(column_name_right_not_in_left) or "None"}\n'
+                f'Columns in left dataframe but not in right one: '
+                f'{",".join(column_name_left_not_in_right) or "None"}'
+            )
+
         self.df_left_data = df_left_data
         self.df_right_data = df_right_data
         self.verbose = verbose
@@ -56,12 +79,13 @@ class DriftChecker(abc.ABC):
                              .select_dtypes(include='number')
                              .columns)
 
-        self.ml_classifier_model = None
+        self.ml_discriminate_model = None
         self.drift = False
 
     def ml_model_can_discriminate(self,
-                                  ml_classifier_model: ScikitModel = None,
-                                  auc_threshold: float = .55,
+                                  ml_discriminate_model: ScikitModel = None,
+                                  column_names: List[str] = None,
+                                  auc_threshold: float = .05,
                                   new_target_column: str = 'is_left') -> bool:
         """Creates a machine learning model based in `sklearn`,
         this model will be a classification model that will try
@@ -71,6 +95,13 @@ class DriftChecker(abc.ABC):
         data natively and is a state of the art algorithm. Parameters are
         not too high to avoid overfitting. It is within the function instead
         of having it in the parameters because `self.cat_features` is needed
+
+        You can change `ml_discriminate_model` to any sklearn model or
+        pipeline
+
+        Parameter `column_names` is only needed when the model output column
+        names are not the same as its input, for example in a pipeline with
+        one hot encoding step
 
         If the model gets an auc higher than `auc_threshold` it means
         that it can discriminate between `left_data` and `right_data`
@@ -96,30 +127,32 @@ class DriftChecker(abc.ABC):
         X = df_all_data_with_target.drop(columns=new_target_column)
         y = df_all_data_with_target[new_target_column]
 
-        if not ml_classifier_model:
-            ml_classifier_model = CatBoostClassifier(
-                num_trees=10,
+        if not ml_discriminate_model:
+            self.ml_discriminate_model = CatBoostClassifier(
+                num_trees=3,
                 max_depth=3,
                 cat_features=self.cat_features,
-                random_state=RANDOM_STATE
+                random_state=RANDOM_STATE,
+                verbose=False
             )
 
             X = cat_features_fillna(X, self.cat_features)
+        else:
+            self.ml_discriminate_model = ml_discriminate_model
 
-        if not is_classifier(ml_classifier_model):
+        if not is_classifier(self.ml_discriminate_model):
             raise TypeError(
-                'Model `ml_classifier_model` has to be a classification model'
+                'Model `ml_discriminate_model` '
+                'has to be a classification model'
             )
 
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=.2, random_state=RANDOM_STATE
         )
 
-        self.ml_classifier_model = clone(ml_classifier_model)
+        self.ml_discriminate_model.fit(X_train, y_train)
 
-        self.ml_classifier_model.fit(X_train, y_train, verbose=False)
-
-        y_score = self.ml_classifier_model.predict_proba(X_test)[:, 1]
+        y_score = self.ml_discriminate_model.predict_proba(X_test)[:, 1]
 
         auc_drift_check_model = roc_auc_score(y_true=y_test, y_score=y_score)
 
@@ -127,12 +160,15 @@ class DriftChecker(abc.ABC):
                       < symmetric_auc(auc_threshold))
 
         if not self.minimal:
-            explainer_plots(model=self.ml_classifier_model,
-                            X_train=X_train,
-                            minimal=self.minimal)
+            explainer_plots(
+                model=self.ml_discriminate_model,
+                X_train=X_train,
+                X_test=X_test,
+                column_names=(column_names if column_names
+                              else self.df_left_data.columns.tolist())
+            )
 
-        is_there_drift = (symmetric_auc(auc_drift_check_model)
-                          > symmetric_auc(auc_threshold))
+        is_there_drift = symmetric_auc(auc_drift_check_model) > auc_threshold
 
         if self.verbose:
             print(
@@ -143,8 +179,8 @@ class DriftChecker(abc.ABC):
                 end='\n\n'
             )
 
-            print(f'AUC drift check model: {auc_drift_check_model}')
-            print(f'AUC threshold: {auc_threshold}')
+            print(f'AUC drift check model: {auc_drift_check_model:.2f}')
+            print(f'AUC threshold: ±{auc_threshold:.2f}')
 
         return is_there_drift
 
@@ -314,9 +350,13 @@ class ModelDriftChecker(DriftChecker):
         self.target_column_name = target_column_name
         self.auc_threshold = auc_threshold
 
-    def check_model(self) -> bool:
+    def check_model(self, column_names: List[str] = None) -> bool:
         """Checks if features relations with target are the same
         for `self.df_left_data` and `self.df_right_data`
+
+        Parameter `column_names` is only needed when the model output column
+        names are not the same as its input, for example in a pipeline with
+        one hot encoding step
         """
         X_left = self.df_left_data.drop(columns=self.target_column_name)
         y_left = self.df_left_data[self.target_column_name]
@@ -332,7 +372,11 @@ class ModelDriftChecker(DriftChecker):
         if not self.minimal:
             explainer_plots(model=self.ml_classifier_model,
                             X_train=X_left,
-                            minimal=self.minimal)
+                            X_test=X_right,
+                            column_names=(
+                                column_names if column_names
+                                else self.df_left_data.columns.tolist())
+                            )
 
         is_there_drift = abs(auc_left - auc_right) > self.auc_threshold
 
