@@ -40,7 +40,7 @@ jobs:
       - run:
           name: Run flake8
           command: |
-            poetry run flake8 .
+            make check_style
       # Last step, runs our tests ommiting the dependencies path (so we don't take their coverage into account)
       # And send our coverage somewhere, in this case, coveralls
       - run:

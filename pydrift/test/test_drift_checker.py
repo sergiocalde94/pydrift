@@ -1,9 +1,11 @@
+import pytest
 import pandas as pd
 
 from sklearn.model_selection import train_test_split
 from catboost import CatBoostClassifier
 
 from pydrift import DataDriftChecker, ModelDriftChecker
+from pydrift.exceptions import ColumnsNotMatchException
 from pydrift.models import cat_features_fillna
 from pydrift.constants import PATH_DATA, RANDOM_STATE
 
@@ -35,6 +37,19 @@ X_filled_train, X_filled_test, y_filled_train, y_filled_test = (
 
 df_left_data = pd.concat([X_filled_train, y_filled_train], axis=1)
 df_right_data = pd.concat([X_filled_test, y_filled_test], axis=1)
+
+
+def test_columns_not_match_exception():
+    """Tests if correctly raised columns not match
+     custom exception"""
+    with pytest.raises(ColumnsNotMatchException):
+        DataDriftChecker(
+            X_train.drop(columns='Sex'), X_test, minimal=True, verbose=False
+        )
+
+        DataDriftChecker(
+            X_train, X_test.drop(columns='Cabin'), minimal=True, verbose=False
+        )
 
 
 def test_data_drift_ok():

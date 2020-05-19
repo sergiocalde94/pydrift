@@ -84,7 +84,7 @@ description = "Catboost Python Package"
 name = "catboost"
 optional = false
 python-versions = "*"
-version = "0.23"
+version = "0.23.1"
 
 [package.dependencies]
 graphviz = "*"
@@ -1474,21 +1474,21 @@ bleach = [
     {file = "bleach-3.1.5.tar.gz", hash = "sha256:3c4c520fdb9db59ef139915a5db79f8b51bc2a7257ea0389f30c846883430a4b"},
 ]
 catboost = [
-    {file = "catboost-0.23-cp27-none-macosx_10_6_intel.macosx_10_9_intel.macosx_10_9_x86_64.macosx_10_10_intel.macosx_10_10_x86_64.whl", hash = "sha256:bb0cf9efc4d7ca9f50362ccd9aadbc1d71648e56f8644b40484b69b813d6049d"},
-    {file = "catboost-0.23-cp27-none-manylinux1_x86_64.whl", hash = "sha256:fa8014beeea2ff95d7b75fabbb9a94dec2d3143c3ef4c4a4ecd783fe5fb6c006"},
-    {file = "catboost-0.23-cp27-none-win_amd64.whl", hash = "sha256:5da1a4228b5b4ee2dcd8dd57a0678640922663f3099244189743232cdc343a6b"},
-    {file = "catboost-0.23-cp35-none-macosx_10_6_intel.macosx_10_9_intel.macosx_10_9_x86_64.macosx_10_10_intel.macosx_10_10_x86_64.whl", hash = "sha256:c5ac066be13c3ce96a42b7f186999d1e901ab1b2e657455bdb4b8a84f3f12d88"},
-    {file = "catboost-0.23-cp35-none-manylinux1_x86_64.whl", hash = "sha256:c3a98dd3ef11c8a07773a381ccf88129dde793bc4f8219bb1d7ae26c0d95254f"},
-    {file = "catboost-0.23-cp35-none-win_amd64.whl", hash = "sha256:5495637375533388d45167cf72644082ded89e89ac33d91e195fac16691797dd"},
-    {file = "catboost-0.23-cp36-none-macosx_10_6_intel.macosx_10_9_intel.macosx_10_9_x86_64.macosx_10_10_intel.macosx_10_10_x86_64.whl", hash = "sha256:bbbd6990d54bd87d878b23d4f50e46a9380464f63840e75e235e1b656a9447b7"},
-    {file = "catboost-0.23-cp36-none-manylinux1_x86_64.whl", hash = "sha256:7d43f4fc735c108673c39f9f3951a31a09200864bf5eed2b5d8aa15971f8679b"},
-    {file = "catboost-0.23-cp36-none-win_amd64.whl", hash = "sha256:1b30cd1c783d66cb767fab2f3b2b986db18718b9fb35a65e7ca95e27a4618704"},
-    {file = "catboost-0.23-cp37-none-macosx_10_6_intel.macosx_10_9_intel.macosx_10_9_x86_64.macosx_10_10_intel.macosx_10_10_x86_64.whl", hash = "sha256:73f9a42e03fcb0dc971dbeaa5d2d0fd8cfc64c039ae0ca2465b070a665b49c16"},
-    {file = "catboost-0.23-cp37-none-manylinux1_x86_64.whl", hash = "sha256:5efd1c1c38490a0ea46b49e29a1528c65317662a982048b94b7dbbd7f679aabe"},
-    {file = "catboost-0.23-cp37-none-win_amd64.whl", hash = "sha256:fc6c0a969ee733b9453f1cdbb6c8386795b595cd79a3ec6689d8670f01dadae9"},
-    {file = "catboost-0.23-cp38-none-macosx_10_6_intel.macosx_10_9_intel.macosx_10_9_x86_64.macosx_10_10_intel.macosx_10_10_x86_64.whl", hash = "sha256:c0570b6def74198911a7b5ae9f74fd8c78ca76f59769a321e93ce32c9ab23d86"},
-    {file = "catboost-0.23-cp38-none-manylinux1_x86_64.whl", hash = "sha256:cfe637c62d3074787d3b6ad1e876a22ca355de850855e051b7a1924ff8883ec2"},
-    {file = "catboost-0.23-cp38-none-win_amd64.whl", hash = "sha256:28a8f78bdfa08310e14bbbe41376450b88061a2fc37a818b554b27840ee300bf"},
+    {file = "catboost-0.23.1-cp27-none-macosx_10_6_intel.macosx_10_9_intel.macosx_10_9_x86_64.macosx_10_10_intel.macosx_10_10_x86_64.whl", hash = "sha256:08f9e9b9b420c09edc22a1ee3dad8eeb42691949657dffb45c923d871b0b1ec8"},
+    {file = "catboost-0.23.1-cp27-none-manylinux1_x86_64.whl", hash = "sha256:5b735a590c4169abdb7885a71d7153b9fc432e8a2fd0d591ca40b8e329e3bcee"},
+    {file = "catboost-0.23.1-cp27-none-win_amd64.whl", hash = "sha256:a01a02eaa830a6511e1b85f63c569f6862f724e531b64f1b0538a88835433dfc"},
+    {file = "catboost-0.23.1-cp35-none-macosx_10_6_intel.macosx_10_9_intel.macosx_10_9_x86_64.macosx_10_10_intel.macosx_10_10_x86_64.whl", hash = "sha256:22cc9f66fe4cfc23d19be95fda7991f5611b645f4b7ae2f9fa8b7dbbdc16d3c2"},
+    {file = "catboost-0.23.1-cp35-none-manylinux1_x86_64.whl", hash = "sha256:391ce87101a57eb4e089b70f629e0cc85f1fa625393cc5c6841ebd3ed98e5df3"},
+    {file = "catboost-0.23.1-cp35-none-win_amd64.whl", hash = "sha256:639def8ec29fbe9d0946a5e4ae792de53b0821163da9faa070c5ffe556778d28"},
+    {file = "catboost-0.23.1-cp36-none-macosx_10_6_intel.macosx_10_9_intel.macosx_10_9_x86_64.macosx_10_10_intel.macosx_10_10_x86_64.whl", hash = "sha256:d506919c4eaaa7338fc0fad5e6f28956a80a07510f0f42ed68db7695ae136aae"},
+    {file = "catboost-0.23.1-cp36-none-manylinux1_x86_64.whl", hash = "sha256:779800ac90ba8c7123556a98932cc5953a6505a4dd378d7739bd5a1c37113041"},
+    {file = "catboost-0.23.1-cp36-none-win_amd64.whl", hash = "sha256:6ec9ad43f284137c4418e39697a69aabfacf3185781e0e7e1f3ecf29016de0c5"},
+    {file = "catboost-0.23.1-cp37-none-macosx_10_6_intel.macosx_10_9_intel.macosx_10_9_x86_64.macosx_10_10_intel.macosx_10_10_x86_64.whl", hash = "sha256:1b4a1cd7e98810f86380eeaac419fcdf13b5880030a0fa62eb39925441c73025"},
+    {file = "catboost-0.23.1-cp37-none-manylinux1_x86_64.whl", hash = "sha256:9e33ff94f5ba24e8ea830234ad756eb7790947c930f1bca08766ba975a8f3410"},
+    {file = "catboost-0.23.1-cp37-none-win_amd64.whl", hash = "sha256:2a685f7835e5852000a9ed9cca39b6184d441954eef1eb9da445124b8c61188b"},
+    {file = "catboost-0.23.1-cp38-none-macosx_10_6_intel.macosx_10_9_intel.macosx_10_9_x86_64.macosx_10_10_intel.macosx_10_10_x86_64.whl", hash = "sha256:847cdc8a71f7069eaa2a52b0924ae9c2ec231fde792f20d6de862410b1da888a"},
+    {file = "catboost-0.23.1-cp38-none-manylinux1_x86_64.whl", hash = "sha256:8dac1fea693b952d15502f0ae4c3739a72fa609f01fe98d24719157e854d5101"},
+    {file = "catboost-0.23.1-cp38-none-win_amd64.whl", hash = "sha256:a501298265333521ff40381f7839959383e904489aa0d63498e4b03f6bdaf9f5"},
 ]
 certifi = [
     {file = "certifi-2020.4.5.1-py2.py3-none-any.whl", hash = "sha256:1d987a998c75633c40847cc966fcf5904906c920a7f17ef374f5aa4282abd304"},
