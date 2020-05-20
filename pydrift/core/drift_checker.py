@@ -1,4 +1,5 @@
 import abc
+import warnings
 import pandas as pd
 
 from sklearn.base import is_classifier
@@ -9,9 +10,10 @@ from scipy import stats
 from collections import defaultdict
 from typing import List
 
+from .interpretable_drift import InterpretableDrift
 from ..constants import RANDOM_STATE
 from ..exceptions import ColumnsNotMatchException
-from ..models import ScikitModel, cat_features_fillna, explainer_plots
+from ..models import ScikitModel, cat_features_fillna
 from ..data import compute_levels_count_and_pct
 
 
@@ -61,9 +63,9 @@ class DriftChecker(abc.ABC):
             raise ColumnsNotMatchException(
                 'Different columns for left and right dataframes\n\n'
                 f'Columns in right dataframe but not in left one: '
-                f'{",".join(column_name_right_not_in_left) or "None"}\n'
+                f'{(", ").join(column_name_right_not_in_left) or "None"}\n'
                 f'Columns in left dataframe but not in right one: '
-                f'{",".join(column_name_left_not_in_right) or "None"}'
+                f'{(", ").join(column_name_left_not_in_right) or "None"}'
             )
 
         self.df_left_data = df_left_data
@@ -81,6 +83,7 @@ class DriftChecker(abc.ABC):
 
         self.ml_discriminate_model = None
         self.drift = False
+        self.interpretable_drift = None
 
     def ml_model_can_discriminate(self,
                                   ml_discriminate_model: ScikitModel = None,
@@ -160,13 +163,15 @@ class DriftChecker(abc.ABC):
                       < symmetric_auc(auc_threshold))
 
         if not self.minimal:
-            explainer_plots(
+            self.interpretable_drift = InterpretableDrift(
                 model=self.ml_discriminate_model,
                 X_train=X_train,
                 X_test=X_test,
                 column_names=(column_names if column_names
                               else self.df_left_data.columns.tolist())
             )
+
+            self.interpretable_drift.most_discriminative_features_plot()
 
         is_there_drift = symmetric_auc(auc_drift_check_model) > auc_threshold
 
@@ -180,7 +185,7 @@ class DriftChecker(abc.ABC):
             )
 
             print(f'AUC drift check model: {auc_drift_check_model:.2f}')
-            print(f'AUC threshold: ±{auc_threshold:.2f}')
+            print(f'AUC threshold: .5 ± {auc_threshold:.2f}')
 
         return is_there_drift
 
@@ -243,7 +248,7 @@ class DataDriftChecker(DriftChecker):
                       'otherwise check the data source',
                       end='\n\n')
 
-                print(f'Features drifted: {drifted_features}')
+                print(f'Features drifted: {(", ").join(drifted_features)}')
             else:
                 print('No drift found in numerical columns check step',
                       end='\n\n')
@@ -298,6 +303,7 @@ class DataDriftChecker(DriftChecker):
         ]
 
         is_there_drift = len(drifted_features) > 0
+        is_there_high_cardinality = len(high_cardinality_features)
 
         if self.verbose:
             if is_there_drift:
@@ -307,13 +313,15 @@ class DataDriftChecker(DriftChecker):
                       'otherwise check the data source',
                       end='\n\n')
 
-                print(f'Features drifted: {drifted_features}')
-
-                print(f'Features cardinality warning: '
-                      f'{high_cardinality_features}')
+                warnings.warn(f'Features drifted: '
+                              f'{(", ").join(drifted_features)}')
             else:
                 print('No drift found in categorical columns check step',
                       end='\n\n')
+
+            if is_there_high_cardinality:
+                warnings.warn(f'Features cardinality warning: '
+                              f'{(", ").join(high_cardinality_features)}')
 
         return is_there_drift
 
@@ -349,6 +357,7 @@ class ModelDriftChecker(DriftChecker):
         self.ml_classifier_model = ml_classifier_model
         self.target_column_name = target_column_name
         self.auc_threshold = auc_threshold
+        self.interpretable_drift_classifier_model = None
 
     def check_model(self, column_names: List[str] = None) -> bool:
         """Checks if features relations with target are the same
@@ -370,13 +379,17 @@ class ModelDriftChecker(DriftChecker):
         auc_right = roc_auc_score(y_true=y_right, y_score=y_score_right)
 
         if not self.minimal:
-            explainer_plots(model=self.ml_classifier_model,
-                            X_train=X_left,
-                            X_test=X_right,
-                            column_names=(
-                                column_names if column_names
-                                else self.df_left_data.columns.tolist())
-                            )
+            self.interpretable_drift_classifier_model = InterpretableDrift(
+                model=self.ml_classifier_model,
+                X_train=X_left,
+                X_test=X_right,
+                column_names=(column_names if column_names
+                              else self.df_left_data.columns.tolist())
+            )
+
+            (self
+             .interpretable_drift_classifier_model
+             .most_discriminative_features_plot())
 
         is_there_drift = abs(auc_left - auc_right) > self.auc_threshold
 
