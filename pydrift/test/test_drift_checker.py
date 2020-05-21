@@ -2,10 +2,12 @@ import pytest
 import pandas as pd
 
 from sklearn.model_selection import train_test_split
+from sklearn.pipeline import make_pipeline
 from catboost import CatBoostClassifier
 
-from pydrift import DataDriftChecker, ModelDriftChecker
-from pydrift.exceptions import ColumnsNotMatchException
+from pydrift import DataDriftChecker, ModelDriftChecker, DriftCheckerEstimator
+from pydrift.exceptions import (ColumnsNotMatchException,
+                                DriftEstimatorException)
 from pydrift.models import cat_features_fillna
 from pydrift.constants import PATH_DATA, RANDOM_STATE
 
@@ -52,6 +54,46 @@ def test_columns_not_match_exception():
         )
 
 
+def test_estimator_drift_ko():
+    """Tests if correctly check drifted data
+    in a pipeline
+    """
+    with pytest.raises(DriftEstimatorException):
+        df_train_filled = pd.concat([X_filled_train, y_train], axis=1)
+        df_train_filled_drifted = df_train_filled[
+            (df_train_filled['Pclass'] > 1) & (
+                    df_train_filled['Fare'] > 10)].copy()
+
+        X_train_filled_drifted = df_train_filled_drifted.drop(columns=TARGET)
+        y_train_filled_drifted = df_train_filled_drifted[TARGET]
+
+        df_test_filled = pd.concat([X_filled_test, y_test], axis=1)
+        df_test_filled_drifted = df_test_filled[
+            ~(df_test_filled['Pclass'] > 1) & (
+                    df_test_filled['Fare'] > 10)].copy()
+
+        X_test_filled_drifted = df_test_filled_drifted.drop(columns=TARGET)
+
+        ml_classifier_model = CatBoostClassifier(
+            num_trees=5,
+            max_depth=3,
+            cat_features=cat_features,
+            random_state=RANDOM_STATE,
+            verbose=False
+        )
+
+        pipeline_catboost_drift_checker = make_pipeline(
+            DriftCheckerEstimator(ml_classifier_model=ml_classifier_model,
+                                  column_names=X.columns,
+                                  minimal=True)
+        )
+
+        pipeline_catboost_drift_checker.fit(X_train_filled_drifted,
+                                            y_train_filled_drifted)
+
+        pipeline_catboost_drift_checker.predict_proba(X_test_filled_drifted)
+
+
 def test_data_drift_ok():
     """Tests if correctly check non-drifted data"""
     data_drift_checker_ok = DataDriftChecker(
@@ -64,7 +106,7 @@ def test_data_drift_ok():
 
 
 def test_data_drift_ko():
-    """Tests if correctly check non-drifted data"""
+    """Tests if correctly check drifted data"""
     data_drift_checker_ok = DataDriftChecker(
         X_women, X_men, minimal=True, verbose=False
     )
@@ -75,7 +117,7 @@ def test_data_drift_ko():
 
 
 def test_model_drift_ok():
-    """Tests if correctly check non-drifted data"""
+    """Tests if correctly check non-drifted model"""
     ml_classifier_model = CatBoostClassifier(
         num_trees=5,
         max_depth=3,
@@ -95,7 +137,7 @@ def test_model_drift_ok():
 
 
 def test_model_drift_ko():
-    """Tests if correctly check non-drifted data"""
+    """Tests if correctly check drifted model"""
     ml_classifier_model_drifted = CatBoostClassifier(
         num_trees=10,
         max_depth=6,
@@ -112,3 +154,25 @@ def test_model_drift_ko():
     )
 
     assert model_drift_checker_ko.check_model()
+
+
+def test_estimator_drift_ok():
+    """Tests if correctly check non-drifted data
+    in a pipeline
+    """
+    ml_classifier_model = CatBoostClassifier(
+        num_trees=5,
+        max_depth=3,
+        cat_features=cat_features,
+        random_state=RANDOM_STATE,
+        verbose=False
+    )
+
+    pipeline_catboost_drift_checker = make_pipeline(
+        DriftCheckerEstimator(ml_classifier_model=ml_classifier_model,
+                              column_names=X.columns,
+                              minimal=True)
+    )
+
+    pipeline_catboost_drift_checker.fit(X_filled_train, y_filled_train)
+    pipeline_catboost_drift_checker.predict_proba(X_filled_test)

@@ -63,9 +63,9 @@ class DriftChecker(abc.ABC):
             raise ColumnsNotMatchException(
                 'Different columns for left and right dataframes\n\n'
                 f'Columns in right dataframe but not in left one: '
-                f'{(", ").join(column_name_right_not_in_left) or "None"}\n'
+                f'{", ".join(column_name_right_not_in_left) or "None"}\n'
                 f'Columns in left dataframe but not in right one: '
-                f'{(", ").join(column_name_left_not_in_right) or "None"}'
+                f'{", ".join(column_name_left_not_in_right) or "None"}'
             )
 
         self.df_left_data = df_left_data
@@ -88,7 +88,7 @@ class DriftChecker(abc.ABC):
     def ml_model_can_discriminate(self,
                                   ml_discriminate_model: ScikitModel = None,
                                   column_names: List[str] = None,
-                                  auc_threshold: float = .05,
+                                  auc_threshold: float = .1,
                                   new_target_column: str = 'is_left') -> bool:
         """Creates a machine learning model based in `sklearn`,
         this model will be a classification model that will try
@@ -150,7 +150,7 @@ class DriftChecker(abc.ABC):
             )
 
         X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=.2, random_state=RANDOM_STATE
+            X, y, test_size=.5, random_state=RANDOM_STATE
         )
 
         self.ml_discriminate_model.fit(X_train, y_train)
@@ -199,7 +199,7 @@ class DataDriftChecker(DriftChecker):
                  df_right_data: pd.DataFrame,
                  verbose: bool = True,
                  minimal: bool = False,
-                 pvalue_threshold: float = .01,
+                 pvalue_threshold: float = .05,
                  cardinality_threshold: int = 20,
                  pct_level_threshold: float = .05,
                  pct_change_level_threshold: float = .05):
@@ -222,6 +222,8 @@ class DataDriftChecker(DriftChecker):
         self.cardinality_threshold = cardinality_threshold
         self.pct_level_threshold = pct_level_threshold
         self.pct_change_level_threshold = pct_change_level_threshold
+        self.high_cardinality_features = []
+        self.drifted_features = []
 
     def check_numerical_columns(self) -> bool:
         """Given `numerical_columns` check all drifts
@@ -232,13 +234,14 @@ class DataDriftChecker(DriftChecker):
                                        self.df_right_data[numerical_column])
             dict_each_column_pvalues[numerical_column] = pvalue
 
-        drifted_features = [
-            column
-            for column, pvalue in dict_each_column_pvalues.items()
-            if pvalue < self.pvalue_threshold
-        ]
+        self.drifted_features = (
+            self.drifted_features
+            + [column
+               for column, pvalue in dict_each_column_pvalues.items()
+               if pvalue < self.pvalue_threshold]
+        )
 
-        is_there_drift = len(drifted_features) > 0
+        is_there_drift = len(self.drifted_features) > 0
 
         if self.verbose:
             if is_there_drift:
@@ -248,7 +251,7 @@ class DataDriftChecker(DriftChecker):
                       'otherwise check the data source',
                       end='\n\n')
 
-                print(f'Features drifted: {(", ").join(drifted_features)}')
+                print(f'Features drifted: {", ".join(self.drifted_features)}')
             else:
                 print('No drift found in numerical columns check step',
                       end='\n\n')
@@ -290,20 +293,22 @@ class DataDriftChecker(DriftChecker):
                 .iloc[0]
             )
 
-        high_cardinality_features = [
+        self.high_cardinality_features = [
             column
             for column, cardinality in dict_each_column_cardinality.items()
             if cardinality > self.cardinality_threshold
         ]
 
-        drifted_features = [
-            column
-            for column, difference in dict_each_column_level_difference.items()
-            if difference > self.pct_change_level_threshold
-        ]
+        self.drifted_features = (
+            self.drifted_features
+            + [column
+               for column, difference in (dict_each_column_level_difference
+                                          .items())
+               if difference > self.pct_change_level_threshold]
+        )
 
-        is_there_drift = len(drifted_features) > 0
-        is_there_high_cardinality = len(high_cardinality_features)
+        is_there_drift = len(self.drifted_features) > 0
+        is_there_high_cardinality = len(self.high_cardinality_features)
 
         if self.verbose:
             if is_there_drift:
@@ -314,14 +319,14 @@ class DataDriftChecker(DriftChecker):
                       end='\n\n')
 
                 warnings.warn(f'Features drifted: '
-                              f'{(", ").join(drifted_features)}')
+                              f'{", ".join(self.drifted_features)}')
             else:
                 print('No drift found in categorical columns check step',
                       end='\n\n')
 
             if is_there_high_cardinality:
                 warnings.warn(f'Features cardinality warning: '
-                              f'{(", ").join(high_cardinality_features)}')
+                              f'{", ".join(self.high_cardinality_features)}')
 
         return is_there_drift
 
@@ -405,7 +410,7 @@ class ModelDriftChecker(DriftChecker):
                 end='\n\n'
             )
 
-            print(f'AUC left data: {auc_left}')
-            print(f'AUC right data: {auc_right}')
+            print(f'AUC left data: {auc_left:.2f}')
+            print(f'AUC right data: {auc_right:.2f}')
 
         return is_there_drift
