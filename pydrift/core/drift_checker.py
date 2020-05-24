@@ -14,7 +14,6 @@ from .interpretable_drift import InterpretableDrift
 from ..constants import RANDOM_STATE
 from ..exceptions import ColumnsNotMatchException
 from ..models import ScikitModel, cat_features_fillna
-from ..data import compute_levels_count_and_pct
 
 
 class DriftChecker(abc.ABC):
@@ -167,6 +166,8 @@ class DriftChecker(abc.ABC):
                 model=self.ml_discriminate_model,
                 X_train=X_train,
                 X_test=X_test,
+                y_train=y_train,
+                y_test=y_test,
                 column_names=(column_names if column_names
                               else self.df_left_data.columns.tolist())
             )
@@ -223,10 +224,16 @@ class DataDriftChecker(DriftChecker):
         self.pct_level_threshold = pct_level_threshold
         self.pct_change_level_threshold = pct_change_level_threshold
         self.high_cardinality_features = []
-        self.drifted_features = []
+        self.drifted_features = set()
 
     def check_numerical_columns(self) -> bool:
         """Given `numerical_columns` check all drifts
+
+        Kolmogorov-Smirnov test:
+
+            This is a two-sided test for the null hypothesis that 2
+            independent samples are drawn from the same continuous
+            distribution.
         """
         dict_each_column_pvalues = defaultdict(float)
         for numerical_column in self.num_features:
@@ -234,12 +241,13 @@ class DataDriftChecker(DriftChecker):
                                        self.df_right_data[numerical_column])
             dict_each_column_pvalues[numerical_column] = pvalue
 
-        self.drifted_features = (
-            self.drifted_features
-            + [column
-               for column, pvalue in dict_each_column_pvalues.items()
-               if pvalue < self.pvalue_threshold]
-        )
+        drifted_features = [
+            column
+            for column, pvalue in dict_each_column_pvalues.items()
+            if pvalue < self.pvalue_threshold
+        ]
+
+        self.drifted_features = self.drifted_features.union(drifted_features)
 
         is_there_drift = len(self.drifted_features) > 0
 
@@ -251,7 +259,8 @@ class DataDriftChecker(DriftChecker):
                       'otherwise check the data source',
                       end='\n\n')
 
-                print(f'Features drifted: {", ".join(self.drifted_features)}')
+                warnings.warn(f'Features drifted (numerical): '
+                              f'{", ".join(drifted_features)}')
             else:
                 print('No drift found in numerical columns check step',
                       end='\n\n')
@@ -260,38 +269,42 @@ class DataDriftChecker(DriftChecker):
 
     def check_categorical_columns(self) -> bool:
         """Given `categorical_columns` check all drifts
+
+        Chi-square test of independence:
+
+            This function computes the chi-square statistic and p-value
+            for the hypothesis test of independence of the observed
+            frequencies in the contingency table observed. The expected
+            frequencies are computed based on the marginal sums under the
+            assumption of independence.
         """
+        sample_size = min(len(self.df_left_data), len(self.df_right_data))
+
         dict_each_column_cardinality = defaultdict(float)
-        dict_each_column_level_difference = defaultdict(float)
+        dict_each_column_pvalues = defaultdict(float)
         for categorical_column in self.cat_features:
-            categorical_levels_left = compute_levels_count_and_pct(
-                self.df_left_data, categorical_column=categorical_column
+            contingency_table = pd.crosstab(
+                self
+                .df_left_data[categorical_column]
+                .sample(sample_size)
+                .reset_index(drop=True),
+                self
+                .df_right_data[categorical_column]
+                .sample(sample_size)
+                .reset_index(drop=True),
+                dropna=False
             )
 
-            categorical_levels_right = compute_levels_count_and_pct(
-                self.df_right_data, categorical_column=categorical_column
-            )
-
-            categorical_levels_joined = (
-                categorical_levels_left
-                .merge(categorical_levels_right,
-                       on='index',
-                       suffixes=('_left', '_right'),
-                       how='outer')
-            )
+            _, pvalue, _, _ = stats.chi2_contingency(contingency_table)
 
             dict_each_column_cardinality[categorical_column] = (
-                len(categorical_levels_joined)
+                len(
+                    set(contingency_table.index)
+                    .union(set(contingency_table.columns))
+                )
             )
 
-            pct_category_level_left = f'{categorical_column}_norm_left'
-            pct_category_level_right = f'{categorical_column}_norm_right'
-
-            dict_each_column_level_difference[categorical_column] = (
-                abs(categorical_levels_joined[pct_category_level_left]
-                    - categorical_levels_joined[pct_category_level_right])
-                .iloc[0]
-            )
+            dict_each_column_pvalues[categorical_column] = pvalue
 
         self.high_cardinality_features = [
             column
@@ -299,15 +312,16 @@ class DataDriftChecker(DriftChecker):
             if cardinality > self.cardinality_threshold
         ]
 
-        self.drifted_features = (
-            self.drifted_features
-            + [column
-               for column, difference in (dict_each_column_level_difference
-                                          .items())
-               if difference > self.pct_change_level_threshold]
-        )
+        drifted_features = [
+            column
+            for column, pvalue in (dict_each_column_pvalues
+                                   .items())
+            if pvalue > self.pvalue_threshold
+        ]
 
-        is_there_drift = len(self.drifted_features) > 0
+        self.drifted_features = self.drifted_features.union(drifted_features)
+
+        is_there_drift = len(drifted_features) > 0
         is_there_high_cardinality = len(self.high_cardinality_features)
 
         if self.verbose:
@@ -318,8 +332,8 @@ class DataDriftChecker(DriftChecker):
                       'otherwise check the data source',
                       end='\n\n')
 
-                warnings.warn(f'Features drifted: '
-                              f'{", ".join(self.drifted_features)}')
+                warnings.warn(f'Features drifted (categorical): '
+                              f'{", ".join(drifted_features)}')
             else:
                 print('No drift found in categorical columns check step',
                       end='\n\n')
@@ -364,7 +378,9 @@ class ModelDriftChecker(DriftChecker):
         self.auc_threshold = auc_threshold
         self.interpretable_drift_classifier_model = None
 
-    def check_model(self, column_names: List[str] = None) -> bool:
+    def check_model(self,
+                    column_names: List[str] = None,
+                    new_target_column: str = 'is_left') -> bool:
         """Checks if features relations with target are the same
         for `self.df_left_data` and `self.df_right_data`
 
@@ -388,6 +404,18 @@ class ModelDriftChecker(DriftChecker):
                 model=self.ml_classifier_model,
                 X_train=X_left,
                 X_test=X_right,
+                y_train=(
+                    pd
+                    .Series(1, name=new_target_column)
+                    .repeat(len(X_left))
+                    .to_frame()
+                ),
+                y_test=(
+                    pd
+                    .Series(0, name=new_target_column)
+                    .repeat(len(X_right))
+                    .to_frame()
+                ),
                 column_names=(column_names if column_names
                               else self.df_left_data.columns.tolist())
             )
