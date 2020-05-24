@@ -15,27 +15,52 @@ Welcome to the project documentation, each module has its own description and so
    index
 
 Drift Checker
--------------
+=============
 
 Core three classes `DriftChecker`, `DataDriftChecker` and `ModelDriftChecker`.
 
 .. automodule:: pydrift.core.drift_checker
    :members:
 
+Interpretable Drift
+===================
+
+Core class `InterpretableDrift` for shap interaction and simple plots.
+
+.. automodule:: pydrift.core.interpretable_drift
+   :members:
+
+
+Drift Checker Estimator
+=============
+
+Core class `DriftCheckerEstimator`, for sklearn compatibility.
+
+.. automodule:: pydrift.core.drift_checker_estimator
+   :members:
+
 Models
-------
+======
 
 Sub-module concerning the part of the models.
 
 .. automodule:: pydrift.models
    :members:
 
-Data
-----
+Constants
+=========
 
-Sub-module concerning the part of the dataframe calculations.
+Sub-module concerning the part of the constants.
 
-.. automodule:: pydrift.data
+.. automodule:: pydrift.constants
+   :members:
+
+Exceptions
+==========
+
+Sub-module concerning the part of the exceptions.
+
+.. automodule:: pydrift.exceptions
    :members:
 
 Indices and tables
