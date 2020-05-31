@@ -15,7 +15,7 @@ TARGET = 'Survived'
 
 df_titanic = pd.read_csv(PATH_DATA / 'titanic.csv')
 
-X = df_titanic.drop(columns=['PassengerId', 'Name', TARGET])
+X = df_titanic.drop(columns=['PassengerId', 'Name', 'Ticket', 'Cabin', TARGET])
 y = df_titanic[TARGET]
 
 X_women = X[X['Sex'] == 'female']
@@ -100,6 +100,9 @@ def test_data_drift_ok():
         X_train, X_test, minimal=True, verbose=False
     )
 
+    data_drift_checker_ok.check_categorical_columns()
+
+    print(data_drift_checker_ok.dict_each_column_pvalues_categorical)
     assert not data_drift_checker_ok.ml_model_can_discriminate()
     assert not data_drift_checker_ok.check_numerical_columns()
     assert not data_drift_checker_ok.check_categorical_columns()

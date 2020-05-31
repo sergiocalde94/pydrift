@@ -2,14 +2,24 @@ import shap
 import warnings
 import pandas as pd
 import numpy as np
-import plotly_express as px
+try:
+    import plotly_express as px
+    import plotly.graph_objects as go
+except ModuleNotFoundError:
+    _has_plotly_express = False
+    _plotly_express_exception_message = None
+else:
+    _has_plotly_express = True
+    _plotly_express_exception_message = (
+        'plotly_express is required to run this pydrift functionality.'
+    )
 
-from typing import List, Union
+from typing import List, Union, Dict
 from shap.common import SHAPError
 from sklearn.pipeline import Pipeline
-from plotly.graph_objects import Figure
 
 from ..models import ScikitModel
+from ..decorators import check_optional_module
 
 
 class InterpretableDrift:
@@ -94,16 +104,25 @@ class InterpretableDrift:
                           plot_type='bar',
                           title='Most Discriminative Features')
 
+    @check_optional_module(has_module=_has_plotly_express,
+                           exception_message=_plotly_express_exception_message)
     def both_histogram_plot(self,
                             column: str,
                             fillna_value: Union[str, float, int] = None,
-                            nbins: int = None) -> Figure:
+                            nbins: int = None) -> go.Figure:
         """Plots histogram for the column passed
         in `column`
 
         You can set `nbins` to any number that makes
         your plot better
+
+        Requires `plotly_express`
         """
+        if not _has_plotly_express:
+            raise ModuleNotFoundError(
+
+            )
+
         X_train_column = self.X_train.loc[:, [column]]
         X_test_column = self.X_test.loc[:, [column]]
 
@@ -133,5 +152,138 @@ class InterpretableDrift:
                            facet_row='is_left',
                            nbins=nbins,
                            histnorm='probability density')
+
+        return fig
+
+    @check_optional_module(has_module=_has_plotly_express,
+                           exception_message=_plotly_express_exception_message)
+    def feature_importance_vs_drift_map_plot(
+            self,
+            dict_each_column_drift_coefficient: Dict[str, float],
+            top: int = 10) -> go.Figure:
+        """Feature importance versus drift coefficient map,
+        with this plot you can visualize the most critical
+        features involved in your model drift process
+
+        By default shows you the top 10 most important features
+        but you can customize it with `top` parameter
+        """
+        df_feature_importance = pd.DataFrame(
+            zip(self.column_names,
+                np.abs(self.shap_values).mean(axis=0)),
+            columns=['Feature Name', 'Feature Importance']
+        )
+
+        df_feature_importance['Drift Coefficient'] = (
+            (df_feature_importance['Feature Name']
+             .map(dict_each_column_drift_coefficient))
+        )
+
+        value_min = df_feature_importance['Feature Importance'].min()
+        value_max = df_feature_importance['Feature Importance'].max()
+
+        df_feature_importance['Feature Importance Scaled'] = (
+                (df_feature_importance['Feature Importance'] - value_min)
+                / (value_max - value_min)
+        )
+
+        df_feature_importance_to_plot = (
+            df_feature_importance
+            .sort_values('Feature Importance Scaled', ascending=False)
+            .nlargest(top, columns='Feature Importance Scaled')
+        )
+
+        fig = px.scatter(df_feature_importance_to_plot,
+                         x='Feature Importance Scaled',
+                         y='Drift Coefficient',
+                         text='Feature Name',
+                         hover_name='Feature Name',
+                         hover_data={'Feature Importance Scaled': ':.2f',
+                                     'Drift Coefficient': ':.2f',
+                                     'Feature Importance': False,
+                                     'Feature Name': False},
+                         title='Feature Importance vs Drift Map')
+
+        fig.update_traces(marker=dict(size=10, opacity=.75))
+
+        axis_value_min, axis_value_medium, axis_value_max = 0, .5, 1
+
+        fig.add_trace(
+            go.Scatter(
+                x=[axis_value_min + .15, axis_value_max - .15,
+                   axis_value_max - .15, axis_value_min + .15],
+                y=[axis_value_max + .05, axis_value_max + .05,
+                   axis_value_min - .05, axis_value_min - .05],
+                text=['NON-IMPORTANT FEATURES DRIFTED',
+                      'IMPORTANT FEATURES AND DRIFTED',
+                      'IMPORTANT FEATURES NON-DRIFTED',
+                      ''],
+                mode="text",
+                showlegend=False
+            )
+        )
+
+        fig.add_shape(
+            type="rect",
+            x0=axis_value_min,
+            y0=axis_value_min,
+            x1=axis_value_medium,
+            y1=axis_value_medium,
+            fillcolor="khaki",
+            opacity=.25
+        )
+
+        fig.add_shape(
+            type="rect",
+            x0=axis_value_min,
+            y0=axis_value_medium,
+            x1=axis_value_medium,
+            y1=axis_value_max,
+            fillcolor="coral",
+            opacity=.25
+        )
+
+        fig.add_shape(
+            type="rect",
+            x0=axis_value_medium,
+            y0=axis_value_min,
+            x1=axis_value_max,
+            y1=axis_value_medium,
+            fillcolor="limegreen",
+            opacity=.25
+        )
+
+        fig.add_shape(
+            type="rect",
+            x0=axis_value_medium,
+            y0=axis_value_medium,
+            x1=axis_value_max,
+            y1=axis_value_max,
+            fillcolor="crimson",
+            opacity=.25
+        )
+
+        fig.update_layout(
+            xaxis=dict(range=[axis_value_min - .05, axis_value_max + .05]),
+            yaxis=dict(range=[axis_value_min - .1, axis_value_max + .1])
+        )
+
+        return fig
+
+    @staticmethod
+    @check_optional_module(has_module=_has_plotly_express,
+                           exception_message=_plotly_express_exception_message)
+    def weights_plot(weights: np.array) -> go.Figure:
+        """Feature importance versus drift coefficient map,
+        with this plot you can visualize the most critical
+        features involved in your model drift process
+
+        By default shows you the top 10 most important features
+        but you can customize it with `top` parameter
+        """
+        fig = px.histogram(weights,
+                           title='Weights From The Discriminative Model')
+
+        fig.update_layout(showlegend=False)
 
         return fig

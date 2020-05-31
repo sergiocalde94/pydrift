@@ -23,21 +23,19 @@ class DriftCheckerEstimator(BaseEstimator, ClassifierMixin):
                  ml_classifier_model: ScikitModel,
                  column_names: List[str],
                  verbose: bool = False,
-                 minimal: bool = False,
-                 pvalue_threshold: float = .05,
-                 cardinality_threshold: int = 20,
-                 pct_level_threshold: float = .05,
-                 pct_change_level_threshold: float = .05):
+                 minimal: bool = True,
+                 pvalue_threshold_numerical: float = .05,
+                 pvalue_threshold_categorical: float = .05,
+                 cardinality_threshold: int = 20):
         self.ml_classifier_model = ml_classifier_model
         self.column_names = column_names
         self.df_left_data = None
         self.df_right_data = None
         self.verbose = verbose
         self.minimal = minimal
-        self.pvalue_threshold = pvalue_threshold
+        self.pvalue_threshold_numerical = pvalue_threshold_numerical
+        self.pvalue_threshold_categorical = pvalue_threshold_categorical
         self.cardinality_threshold = cardinality_threshold
-        self.pct_level_threshold = pct_level_threshold
-        self.pct_change_level_threshold = pct_change_level_threshold
         self.data_drift_checker = None
         self.is_drift_in_numerical_columns = False
         self.is_drift_in_categorical_columns = False
@@ -66,10 +64,9 @@ class DriftCheckerEstimator(BaseEstimator, ClassifierMixin):
                                        columns=self.column_names),
             verbose=self.verbose,
             minimal=self.minimal,
-            pvalue_threshold=self.pvalue_threshold,
-            cardinality_threshold=self.cardinality_threshold,
-            pct_level_threshold=self.pct_level_threshold,
-            pct_change_level_threshold=self.pct_change_level_threshold
+            pvalue_threshold_numerical=self.pvalue_threshold_numerical,
+            pvalue_threshold_categorical=self.pvalue_threshold_categorical,
+            cardinality_threshold=self.cardinality_threshold
         )
 
     def check_drift(self):
