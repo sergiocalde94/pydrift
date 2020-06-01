@@ -7,12 +7,12 @@ try:
     import plotly.graph_objects as go
 except ModuleNotFoundError:
     _has_plotly_express = False
-    _plotly_express_exception_message = None
-else:
-    _has_plotly_express = True
     _plotly_express_exception_message = (
         'plotly_express is required to run this pydrift functionality.'
     )
+else:
+    _has_plotly_express = True
+    _plotly_express_exception_message = None
 
 from typing import List, Union, Dict
 from shap.common import SHAPError

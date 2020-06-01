@@ -1,4 +1,4 @@
-# Welcome to `pydrift` 0.2.1
+# Welcome to `pydrift` 0.2.2
 
 How do we measure the degradation of a machine learning process? Why does the performance of our predictive models decrease? Maybe it is that a data source has changed (one or more variables) or maybe what changes is the relationship of these variables with the target we want to predict. `pydrift` tries to facilitate this task to the data scientist, performing this kind of checks and somehow measuring that degradation.
 
@@ -34,7 +34,7 @@ It also exists `InterpretableDrift` and `DriftCheckerEstimator`:
 
 # Usage
 
-You can take a look to the `notebooks` folder where you can find one example for generic `DriftChecker`, one for DataDriftChecker` and other one for `ModelDriftChecker`. 
+You can take a look to the `notebooks` folder where you can find one example for generic `DriftChecker`, one for `DataDriftChecker` and other one for `ModelDriftChecker`. 
 
 # Correct Notebooks Render
 

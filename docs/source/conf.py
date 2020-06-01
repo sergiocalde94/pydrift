@@ -23,7 +23,7 @@ copyright = '2020, Sergio Calderón Pérez-Lozao'
 author = 'Sergio Calderón Pérez-Lozao'
 
 # The full version, including alpha/beta/rc tags
-release = '0.2.1'
+release = '0.2.2'
 
 
 # -- General configuration ---------------------------------------------------
