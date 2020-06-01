@@ -109,7 +109,7 @@ class InterpretableDrift:
     def both_histogram_plot(self,
                             column: str,
                             fillna_value: Union[str, float, int] = None,
-                            nbins: int = None) -> go.Figure:
+                            nbins: int = None) -> None:
         """Plots histogram for the column passed
         in `column`
 
@@ -153,14 +153,14 @@ class InterpretableDrift:
                            nbins=nbins,
                            histnorm='probability density')
 
-        return fig
+        fig.show()
 
     @check_optional_module(has_module=_has_plotly_express,
                            exception_message=_plotly_express_exception_message)
     def feature_importance_vs_drift_map_plot(
             self,
             dict_each_column_drift_coefficient: Dict[str, float],
-            top: int = 10) -> go.Figure:
+            top: int = 10) -> None:
         """Feature importance versus drift coefficient map,
         with this plot you can visualize the most critical
         features involved in your model drift process
@@ -217,7 +217,7 @@ class InterpretableDrift:
                 text=['NON-IMPORTANT FEATURES DRIFTED',
                       'IMPORTANT FEATURES AND DRIFTED',
                       'IMPORTANT FEATURES NON-DRIFTED',
-                      ''],
+                      'NON-IMPORTANT FEATURES NON-DRIFTED'],
                 mode="text",
                 showlegend=False
             )
@@ -268,12 +268,12 @@ class InterpretableDrift:
             yaxis=dict(range=[axis_value_min - .1, axis_value_max + .1])
         )
 
-        return fig
+        fig.show()
 
     @staticmethod
     @check_optional_module(has_module=_has_plotly_express,
                            exception_message=_plotly_express_exception_message)
-    def weights_plot(weights: np.array) -> go.Figure:
+    def weights_plot(weights: np.array) -> None:
         """Feature importance versus drift coefficient map,
         with this plot you can visualize the most critical
         features involved in your model drift process
@@ -286,4 +286,4 @@ class InterpretableDrift:
 
         fig.update_layout(showlegend=False)
 
-        return fig
+        fig.show()

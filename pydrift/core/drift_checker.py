@@ -242,6 +242,10 @@ class DataDriftChecker(DriftChecker):
 
     @staticmethod
     def _line_equation(x: float, points_coordinates: Coordinates) -> float:
+        """Computes the line equation given two points
+        `points_coordinates` and returns `y` value for
+        specific `x`
+        """
         def slope_from_coordinates(
                 _points_coordinates: Coordinates) -> float:
             """Slope equation:
@@ -592,8 +596,7 @@ class ModelDriftChecker(DriftChecker):
             dict_each_column_drift_coefficient=(
                 data_drift_checker.dict_each_column_drift_coefficients
             ),
-            top=top)
-         .show())
+            top=top))
 
     def sample_weight_for_retrain(self) -> np.array:
         """If you need to retrain your model maybe
@@ -630,8 +633,7 @@ class ModelDriftChecker(DriftChecker):
         if not self.minimal:
             (self
              .interpretable_drift
-             .weights_plot(weights)
-             .show())
+             .weights_plot(weights))
 
             print('Higher the weight for the observation, '
                   'more is it similar to the test data')
