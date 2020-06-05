@@ -12,7 +12,7 @@ documentation = "https://sergiocalde94.github.io/Data-And-Model-Drift-Checker/"
 python = "^3.6.1"
 pandas = "^1.0.3"
 scikit-learn = "^0.23.1"
-typing-extensions = "^3.7.4"
+typing-extensions = { version = "^3.7.4", python = "<3.8" }
 catboost = "^0.23"
 shap = "^0.35.0"
 
@@ -24,10 +24,10 @@ pytest = "^5.4.2"
 coveralls = "^2.0.0"
 sphinx = "^3.0.3"
 sphinx_press_theme = "^0.5.1"
-plotly_express = "^0.4.1"
+plotly = "^4.8.1"
 
 [tool.poetry.extras]
-plotting = ["plotly_express"]
+plotting = ["plotly"]
 
 [build-system]
 requires = ["poetry>=0.12"]
