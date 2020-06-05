@@ -1,7 +1,10 @@
 import pandas as pd
 
 from typing import List
-from typing_extensions import Protocol
+try:
+    from typing import Protocol
+except:
+    from typing_extensions import Protocol
 
 
 class ScikitModel(Protocol):
