@@ -3,16 +3,16 @@ import warnings
 import pandas as pd
 import numpy as np
 try:
-    import plotly_express as px
+    import plotly.express as px
     import plotly.graph_objects as go
 except ModuleNotFoundError:
-    _has_plotly_express = False
-    _plotly_express_exception_message = (
-        'plotly_express is required to run this pydrift functionality.'
+    _has_plotly = False
+    _plotly_exception_message = (
+        'Plotly is required to run this pydrift functionality.'
     )
 else:
-    _has_plotly_express = True
-    _plotly_express_exception_message = None
+    _has_plotly = True
+    _plotly_exception_message = None
 
 from typing import List, Union, Dict
 from shap.common import SHAPError
@@ -104,8 +104,8 @@ class InterpretableDrift:
                           plot_type='bar',
                           title='Most Discriminative Features')
 
-    @check_optional_module(has_module=_has_plotly_express,
-                           exception_message=_plotly_express_exception_message)
+    @check_optional_module(has_module=_has_plotly,
+                           exception_message=_plotly_exception_message)
     def both_histogram_plot(self,
                             column: str,
                             fillna_value: Union[str, float, int] = None,
@@ -116,9 +116,9 @@ class InterpretableDrift:
         You can set `nbins` to any number that makes
         your plot better
 
-        Requires `plotly_express`
+        Requires `plotly`
         """
-        if not _has_plotly_express:
+        if not _has_plotly:
             raise ModuleNotFoundError(
 
             )
@@ -155,8 +155,8 @@ class InterpretableDrift:
 
         fig.show()
 
-    @check_optional_module(has_module=_has_plotly_express,
-                           exception_message=_plotly_express_exception_message)
+    @check_optional_module(has_module=_has_plotly,
+                           exception_message=_plotly_exception_message)
     def feature_importance_vs_drift_map_plot(
             self,
             dict_each_column_drift_coefficient: Dict[str, float],
@@ -271,8 +271,8 @@ class InterpretableDrift:
         fig.show()
 
     @staticmethod
-    @check_optional_module(has_module=_has_plotly_express,
-                           exception_message=_plotly_express_exception_message)
+    @check_optional_module(has_module=_has_plotly,
+                           exception_message=_plotly_exception_message)
     def weights_plot(weights: np.array) -> None:
         """Feature importance versus drift coefficient map,
         with this plot you can visualize the most critical
