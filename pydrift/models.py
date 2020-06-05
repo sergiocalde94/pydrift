@@ -3,7 +3,7 @@ import pandas as pd
 from typing import List
 try:
     from typing import Protocol
-except:
+except ImportError:
     from typing_extensions import Protocol
 
 
