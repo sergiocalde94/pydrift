@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "pydrift"
-version = "0.2.2"
+version = "0.2.3"
 description = "How do we measure the degradation of a machine learning process? Why does the performance of our predictive models decrease? Maybe it is that a data source has changed (one or more variables) or maybe what changes is the relationship of these variables with the target we want to predict. `pydrift` tries to facilitate this task to the data scientist, performing this kind of checks and somehow measuring that degradation."
 license="MIT"
 authors = ["sergiocalde94 <sergiocalde94@gmail.com>"]
 readme = "README.md"
-repository = "https://github.com/sergiocalde94/Data-And-Model-Drift-Checker"
-documentation = "https://sergiocalde94.github.io/Data-And-Model-Drift-Checker/"
+repository = "https://github.com/sergiocalde94/pydrift"
+documentation = "https://sergiocalde94.github.io/pydrift/"
 
 [tool.poetry.dependencies]
 python = "^3.6.1"
@@ -22,8 +22,6 @@ jupyter = "^1.0.0"
 pre-commit = "^2.4.0"
 pytest = "^5.4.2"
 coveralls = "^2.0.0"
-sphinx = "^3.0.3"
-sphinx_press_theme = "^0.5.1"
 plotly = "^4.8.1"
 
 [tool.poetry.extras]

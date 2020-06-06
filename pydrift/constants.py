@@ -3,7 +3,7 @@ from pathlib import Path
 
 # Will be called from the root, circleci (project) or from a subfolder
 PATH_PROJECT = (
-    Path('.') if (Path('.').resolve().name == 'Data-And-Model-Drift-Checker'
+    Path('.') if (Path('.').resolve().name == 'pydrift'
                   or Path('.').resolve().name == 'project')
     else Path('..')
 )

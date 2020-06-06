@@ -14,7 +14,7 @@ else:
     _has_plotly = True
     _plotly_exception_message = None
 
-from typing import List, Union, Dict
+from typing import List, Union, Dict, Tuple
 from shap.common import SHAPError
 from sklearn.pipeline import Pipeline
 
@@ -149,9 +149,11 @@ class InterpretableDrift:
                            title=f'Both Histogram Normalized For {column}',
                            x=column,
                            color='is_left',
-                           facet_row='is_left',
+                           barmode='group',
                            nbins=nbins,
                            histnorm='probability density')
+
+        fig.update_layout(bargroupgap=.1)
 
         fig.show()
 
@@ -285,5 +287,170 @@ class InterpretableDrift:
                            title='Weights From The Discriminative Model')
 
         fig.update_layout(showlegend=False)
+
+        fig.show()
+
+    @staticmethod
+    def _drop_outliers_between(
+            df: pd.DataFrame,
+            feature: str,
+            percentiles: Tuple[float,
+                               float] = (.05, .95)) -> pd.DataFrame:
+        """Drop outliers for column `feature` of
+        `df` between `percentiles`
+        """
+        lower, upper = percentiles
+
+        return df[df[feature].between(df[feature].quantile(lower),
+                                      df[feature].quantile(upper))]
+
+    @staticmethod
+    def _convert_to_mid_interval_with_max_bins(
+            serie: pd.Series,
+            bins: int = 25) -> pd.DataFrame:
+        """Convert `series` values to a binned version
+        of it in `bins` as number of
+        intervals
+        """
+        return (pd
+                .cut(serie, bins=bins)
+                .apply(lambda x: x.mid)
+                .astype(float))
+
+    @check_optional_module(has_module=_has_plotly,
+                           exception_message=_plotly_exception_message)
+    def partial_dependence_comparison_plot(
+            self,
+            feature: str,
+            percentiles: Tuple[float, float] = (.05, .95),
+            max_bins: int = 25) -> None:
+        """Partial dependence plot for `feature` in
+        both datasets predictions
+        """
+        X_train_copy = self.X_train.copy()
+        X_test_copy = self.X_test.copy()
+
+        X_train_copy['is_left'] = '1'
+        X_test_copy['is_left'] = '0'
+
+        X_train_copy['Prediction'] = (
+            self.model.predict_proba(X_train_copy)[:, 1]
+        )
+
+        X_test_copy['Prediction'] = (
+            self.model.predict_proba(X_test_copy)[:, 1]
+        )
+
+        is_numeric = pd.api.types.is_numeric_dtype(
+            X_train_copy[feature]
+        )
+
+        if is_numeric:
+            X_train_copy = (
+                self._drop_outliers_between(X_train_copy,
+                                            feature=feature,
+                                            percentiles=percentiles)
+            )
+
+            X_test_copy = (
+                self._drop_outliers_between(X_test_copy,
+                                            feature=feature,
+                                            percentiles=percentiles)
+            )
+
+            bins = min(X_train_copy[feature].nunique(),
+                       max_bins)
+
+            X_train_copy[feature] = (
+                self._convert_to_mid_interval_with_max_bins(
+                    X_train_copy[feature],
+                    bins
+                )
+            )
+
+            X_test_copy[feature] = (
+                self._convert_to_mid_interval_with_max_bins(
+                    X_test_copy[feature],
+                    bins
+                )
+            )
+
+        X_both = pd.concat([X_train_copy, X_test_copy])
+
+        data_to_plot = (
+            X_both
+            .groupby(['is_left', feature])
+            .Prediction
+            .mean()
+            .reset_index()
+        )
+
+        if is_numeric:
+            fig = px.scatter(data_to_plot,
+                             x=feature,
+                             y='Prediction',
+                             color='is_left',
+                             trendline="ols")
+        else:
+            fig = px.bar(data_to_plot,
+                         x=feature,
+                         y='Prediction',
+                         color='is_left',
+                         barmode='group')
+
+        fig.update_layout(title=f'Partial Dependence For {feature}',
+                          bargroupgap=.1)
+
+        fig.show()
+
+    @check_optional_module(has_module=_has_plotly,
+                           exception_message=_plotly_exception_message)
+    def drift_by_sorted_bins_plot(self,
+                                  feature: str,
+                                  bins: int = 10) -> None:
+        """Concat all the data in both dataframes and
+        sort it by `feature`, then it cuts in `bins`
+        number of bins and computes quantity of registers
+        in each bin
+        """
+        X_train_copy = self.X_train.copy()
+        X_test_copy = self.X_test.copy()
+
+        X_train_copy['is_left'] = '1'
+        X_test_copy['is_left'] = '0'
+
+        X_both = (
+            pd
+            .concat([X_train_copy[[feature, 'is_left']],
+                     X_test_copy[[feature, 'is_left']]])
+            .sample(frac=1)
+            .reset_index()
+        )
+
+        is_categorical = not pd.api.types.is_numeric_dtype(
+            X_both[feature]
+        )
+
+        if is_categorical:
+            X_both[feature] = X_both[feature].astype('category')
+
+        X_both['rank'] = (
+            X_both[feature].cat.codes .rank(method='first') if is_categorical
+            else X_both[feature].rank(method='first')
+        )
+
+        X_both['Bin Number'] = pd.qcut(X_both['rank'],
+                                       q=bins,
+                                       labels=range(1, bins + 1))
+
+        fig = px.histogram(X_both,
+                           x='Bin Number',
+                           color='is_left',
+                           nbins=bins,
+                           barmode='group')
+
+        fig.update_layout(title=f'Drift By Bin For {feature}',
+                          bargroupgap=.1,
+                          xaxis=dict(tickmode='linear'))
 
         fig.show()
