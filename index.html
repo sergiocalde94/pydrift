@@ -1,0 +1,359 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>Home · GitBook</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.3">
+        
+        
+        
+    
+    <link rel="stylesheet" href="gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="docs/data_drift/data_drift.html" />
+    
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        <li class="header">General Information</li>
+        
+        
+    
+        <li class="chapter active" data-level="1.1" data-path="./">
+            
+                <a href="./">
+            
+                    
+                    Home
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="docs/data_drift/data_drift.html">
+            
+                <a href="docs/data_drift/data_drift.html">
+            
+                    
+                    Data Drift
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="docs/model_drift/model_drift.html">
+            
+                <a href="docs/model_drift/model_drift.html">
+            
+                    
+                    Model Drift
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+        
+        <li class="header">Drift Interpretability</li>
+        
+        
+    
+        <li class="chapter " data-level="2.1" data-path="docs/interpretability/interpretability.html">
+            
+                <a href="docs/interpretability/interpretability.html">
+            
+                    
+                    Visualizations
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+        
+        <li class="header">Demos</li>
+        
+        
+    
+        <li class="chapter " data-level="3.1" data-path="docs/demos/general_drift.html">
+            
+                <a href="docs/demos/general_drift.html">
+            
+                    
+                    General Drift
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2" data-path="docs/demos/data_drift.html">
+            
+                <a href="docs/demos/data_drift.html">
+            
+                    
+                    Data Drift
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.3" data-path="docs/demos/model_drift.html">
+            
+                <a href="docs/demos/model_drift.html">
+            
+                    
+                    Model Drift
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.4" data-path="docs/demos/drift_checker_estimator.html">
+            
+                <a href="docs/demos/drift_checker_estimator.html">
+            
+                    
+                    Drift Checker Estimator
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="." >Home</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="welcome-to-pydrift-025">Welcome to <code>pydrift</code> 0.2.5</h1>
+<p>How do we measure the degradation of a machine learning process? Why does the performance of our predictive models decrease? Maybe it is that a data source has changed (one or more variables) or maybe what changes is the relationship of these variables with the target we want to predict. <code>pydrift</code> tries to facilitate this task to the data scientist, performing this kind of checks and somehow measuring that degradation.</p>
+<h1 id="install-pydrift">Install <code>pydrift</code></h1>
+<p>With <strong>pip</strong>:</p>
+<p><code>pip install pydrift</code></p>
+<p>With <strong>conda</strong>:</p>
+<p><code>conda install -c conda-forge pydrift</code></p>
+<p>With <strong>poetry</strong></p>
+<p><code>poetry add pydrift</code></p>
+<h1 id="structure">Structure</h1>
+<p>This is intended to be user-friendly. pydrift is divided into <strong>DataDriftChecker</strong> and <strong>ModelDriftChecker</strong>:</p>
+<ul>
+<li><strong>DataDriftChecker</strong>: searches for drift in the variables, check if their distributions have changed</li>
+<li><strong>ModelDriftChecker</strong>: searches for drift in the relationship of the variables with the target, checks that the model behaves the same way for both data sets</li>
+</ul>
+<p>Both can use a discriminative model (defined by parent class <strong>DriftChecker</strong>), where the target would be binary in belonging to one of the two sets, 1 if it is the left one and 0 on the contrary. If the model is not able to differentiate given the two sets, there is no difference!</p>
+<p><img src="https://raw.githubusercontent.com/sergiocalde94/pydrift/master/images/class_inheritance.png" alt="Class inheritance"></p>
+<p>It also exists <code>InterpretableDrift</code> and <code>DriftCheckerEstimator</code>:</p>
+<ul>
+<li><strong>InterpretableDrift</strong>: manages all of the stuff related to interpretability of drifting. It can show us the features distribution or the most important features when we are training a discriminative model or our predictive one</li>
+<li><strong>DriftCheckerEstimator</strong>: allows <code>pydrift</code> to be used as a sklearn estimator, it works lonely or in a pipeline, like any sklearn estimator</li>
+</ul>
+<h1 id="usage">Usage</h1>
+<p>You can take a look to the <code>notebooks</code> folder where you can find one example for generic <code>DriftChecker</code>, one for <code>DataDriftChecker</code> and other one for <code>ModelDriftChecker</code>. </p>
+<h1 id="correct-notebooks-render">Correct Notebooks Render</h1>
+<p>Because <code>pydrift</code> uses plotly and GitHub performs a static render of the notebooks figures do not show correctly. For a rich view of the notebook, you can visit  <a href="http://nbviewer.jupyter.org/" target="_blank">nbviewer</a> and paste the link to the notebook you want to show, for example if you want to render <strong>1-Titanic-Drift-Demo.ipynb</strong> you have to paste <a href="https://github.com/sergiocalde94/pydrift/blob/master/notebooks/1-Titanic-Drift-Demo.ipynb" target="_blank">https://github.com/sergiocalde94/pydrift/blob/master/notebooks/1-Titanic-Drift-Demo.ipynb</a> into nbviewer.  </p>
+<h1 id="more-info">More Info</h1>
+<p>For more info check the docs available <a href="https://sergiocalde94.github.io/pydrift/" target="_blank">here</a></p>
+<p>More demos and code improvements will coming, <strong>if you want to contribute you can contact me (sergiocalde94@gmail.com)</strong>, in the future I will upload a file to explain how this would work.</p>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                
+                <a href="docs/data_drift/data_drift.html" class="navigation navigation-next navigation-unique" aria-label="Next page: Data Drift">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"Home","level":"1.1","depth":1,"next":{"title":"Data Drift","level":"1.2","depth":1,"path":"docs/data_drift/data_drift.md","ref":"docs/data_drift/data_drift.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":[],"pluginsConfig":{"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"README.md","mtime":"2020-06-28T15:46:49.504Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2020-06-28T16:20:40.630Z"},"basePath":".","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="gitbook/gitbook.js"></script>
+    <script src="gitbook/theme.js"></script>
+    
+        
+        <script src="gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-fontsettings/fontsettings.js"></script>
+        
+    
+
+    </body>
+</html>
+

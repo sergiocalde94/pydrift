@@ -1,0 +1,371 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>Visualizations · GitBook</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.3">
+        
+        
+        
+    
+    <link rel="stylesheet" href="../../gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="../../gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+                
+                <link rel="stylesheet" href="../../gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="../../gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../../gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="../../gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="../demos/general_drift.html" />
+    
+    
+    <link rel="prev" href="../model_drift/model_drift.html" />
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        <li class="header">General Information</li>
+        
+        
+    
+        <li class="chapter " data-level="1.1" data-path="../../">
+            
+                <a href="../../">
+            
+                    
+                    Home
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="../data_drift/data_drift.html">
+            
+                <a href="../data_drift/data_drift.html">
+            
+                    
+                    Data Drift
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="../model_drift/model_drift.html">
+            
+                <a href="../model_drift/model_drift.html">
+            
+                    
+                    Model Drift
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+        
+        <li class="header">Drift Interpretability</li>
+        
+        
+    
+        <li class="chapter active" data-level="2.1" data-path="interpretability.html">
+            
+                <a href="interpretability.html">
+            
+                    
+                    Visualizations
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+        
+        <li class="header">Demos</li>
+        
+        
+    
+        <li class="chapter " data-level="3.1" data-path="../demos/general_drift.html">
+            
+                <a href="../demos/general_drift.html">
+            
+                    
+                    General Drift
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2" data-path="../demos/data_drift.html">
+            
+                <a href="../demos/data_drift.html">
+            
+                    
+                    Data Drift
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.3" data-path="../demos/model_drift.html">
+            
+                <a href="../demos/model_drift.html">
+            
+                    
+                    Model Drift
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.4" data-path="../demos/drift_checker_estimator.html">
+            
+                <a href="../demos/drift_checker_estimator.html">
+            
+                    
+                    Drift Checker Estimator
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="../.." >Visualizations</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="drift-interpretability">Drift Interpretability</h1>
+<p>It&apos;s important to easily interpret our results in an end-to-end machine learning process.</p>
+<blockquote>
+<p>Note: For allowing <code>pydrift</code> to use this part you have to install plotly_express or latest plotly version that includes plotly_express within it</p>
+</blockquote>
+<h1 id="visualizations">Visualizations</h1>
+<ul>
+<li>Discriminative Features: <code>pydrift.InterpretableDrift.most_discriminative_features_plot</code></li>
+<li>Features Histogram Comparison: <code>pydrift.InterpretableDrift.both_histogram_plot</code></li>
+<li>Feature Importance Scaled Versus Drift Coefficient: <code>pydrift.InterpretableDrift.feature_importance_vs_drift_map_plot</code></li>
+<li>Weights: <code>pydrift.InterpretableDrift.weights_plot</code></li>
+<li>Partial Dependence Comparison: <code>pydrift.InterpretableDrift.partial_dependence_comparison_plot</code></li>
+<li>Drift By Sorted Bins: <code>pydrift.InterpretableDrift.drift_by_sorted_bins_plot</code></li>
+</ul>
+<h1 id="discriminative-features">Discriminative Features</h1>
+<p>This visualization allows you to know what are the most discriminative features in terms of drift.</p>
+<p><img src="../images/most_discriminative_features.png" alt="Discriminative Features"></p>
+<h1 id="features-histogram-comparison">Features Histogram Comparison</h1>
+<p>For checking the differences between two features distribution you can use this <code>pydrift</code> functionality.</p>
+<p><img src="../images/histogram_comparison.png" alt="Features Histogram Comparison"></p>
+<h1 id="feature-importance-scaled-versus-drift-coefficient">Feature Importance Scaled Versus Drift Coefficient</h1>
+<p>Sometimes you have some features with drift but they are not important for the model, so you can just drop them and everything will be rigth (you can keep them because they are not so important, but you will have a cleaner version of your machine learning workflow if you avoid to use them).
+<img src="../images/feature_importance_scaled_vs_drift_coefficient.png" alt="Feature Importance Scaled Versus Drift Coefficient"></p>
+<h1 id="weights">Weights</h1>
+<p>Weight are the useful for retrain your model passing this weights to it. Your new model will be much more confident on the data that is not drift than on the data that it is, getting better performance.</p>
+<p>If this visualization is too sparse it is not useful to retrain a model with this weights, but sometimes this approach is quite good.</p>
+<p><img src="../images/weights.png" alt="Weights"></p>
+<h1 id="partial-dependence-comparison">Partial Dependence Comparison</h1>
+<p>This visualization tells you the mean prediction of each bin of your features values. It will draw a scatter plot with a trend line if the feature you are viewing is a numerical feature and a bar plot if it is a categorical feature.</p>
+<p>The trends in predictions given the feature value has to follow the same patterns, if not, like the example bellow there is a drift in your model predictions.</p>
+<p><img src="../images/partial_dependence_comparison.png" alt="Partial Dependence Comparison"></p>
+<h1 id="drift-by-sorted-bins">Drift By Sorted Bins</h1>
+<p>Data contained in both datasets are concatenated and sorted by the feature you want. It divides in custom number of bins, ten by default, and count how much data is present from what dataset.</p>
+<p>If your data has no drift all of the bins has to be almost equal.</p>
+<p><img src="../images/shift_plot_by_bin.png" alt="Drift By Sorted Bins"></p>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="../model_drift/model_drift.html" class="navigation navigation-prev " aria-label="Previous page: Model Drift">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+                <a href="../demos/general_drift.html" class="navigation navigation-next " aria-label="Next page: General Drift">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"Visualizations","level":"2.1","depth":1,"next":{"title":"General Drift","level":"3.1","depth":1,"path":"docs/demos/general_drift.md","ref":"docs/demos/general_drift.md","articles":[]},"previous":{"title":"Model Drift","level":"1.3","depth":1,"path":"docs/model_drift/model_drift.md","ref":"docs/model_drift/model_drift.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":[],"pluginsConfig":{"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"docs/interpretability/interpretability.md","mtime":"2020-06-06T10:34:15.646Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2020-06-28T16:20:40.630Z"},"basePath":"../..","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="../../gitbook/gitbook.js"></script>
+    <script src="../../gitbook/theme.js"></script>
+    
+        
+        <script src="../../gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-fontsettings/fontsettings.js"></script>
+        
+    
+
+    </body>
+</html>
+
