@@ -1,6 +1,6 @@
 # Data Drift
 
-¿What does data drift meaning in pydrift?
+¿What is the meaning of `data drift` in pydrift?
 
 # Definition
 
@@ -8,15 +8,15 @@ Data drifting is all related to your features drift, it checks when the features
 
 The most common use case is when you train a model with a dataset, let's call it `df_train` and you want to apply your model to other dataset, for example `df_test`.
 
-If the data you used for training your model is different that the data when you apply the model, your model performance will be poor.
+If the data you used for training your model is different that the data when you apply the model, then your model performance will be poor.
 
-So data drift part of `pydrift` helps you to get this changes that every feature has and understanding why your model is not working well.
+So data drift part of `pydrift` helps you to detect this changes that every feature has and understanding why your model is not working well.
 
 ![General Use Case](../images/general_use_case.png)
 
 Your model takes into account patterns and features distributions from the training data features.
 
-For example if you train a model with a feature that ranges between 0 and 10 and then in your test data have a different distribution, for example 100 to 1000, it won't work as expected.
+For example if you train a model with a feature that ranges between 0 and 10 and then in your test data has a different distribution, for example 100 to 1000, then your model won't work as expected.
 
 # Types of data drift
 

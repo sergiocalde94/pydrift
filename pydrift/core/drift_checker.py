@@ -271,7 +271,7 @@ class DataDriftChecker(DriftChecker):
     def _convert_pvalues_to_drift_coefficients(
             self, pvalue: float, pvalue_threshold: float) -> float:
         """
-        self.
+        Takes pvalues and return the drift coefficient
         """
 
         dict_coordinates = (
@@ -298,7 +298,19 @@ class DataDriftChecker(DriftChecker):
                 and self.dict_each_column_pvalues_categorical
         )
 
-        if are_all_features_pvalues_filled:
+        empty_num_features_and_cat_features_pvalues_filled = (
+                not self.num_features.tolist()
+                and self.dict_each_column_pvalues_categorical
+        )
+
+        empty_cat_features_and_num_features_pvalues_filled = (
+                not self.cat_features.tolist()
+                and self.dict_each_column_pvalues_numerical
+        )
+
+        if (are_all_features_pvalues_filled
+                or empty_num_features_and_cat_features_pvalues_filled
+                or empty_cat_features_and_num_features_pvalues_filled):
             dict_each_column_drift_coefficients_numerical = {
                 feature: (
                     self

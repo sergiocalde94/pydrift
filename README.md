@@ -1,4 +1,4 @@
-# Welcome to `pydrift` 0.2.3
+# Welcome to `pydrift` 0.2.5
 
 How do we measure the degradation of a machine learning process? Why does the performance of our predictive models decrease? Maybe it is that a data source has changed (one or more variables) or maybe what changes is the relationship of these variables with the target we want to predict. `pydrift` tries to facilitate this task to the data scientist, performing this kind of checks and somehow measuring that degradation.
 
@@ -44,4 +44,4 @@ Because `pydrift` uses plotly and GitHub performs a static render of the noteboo
 
 For more info check the docs available [here](https://sergiocalde94.github.io/pydrift/)
 
-More demos and code improvements will coming, if you want to contribute you can contact me (sergiocalde94@gmail.com), in the future I will upload a file to explain how this would work.
+More demos and code improvements will coming, **if you want to contribute you can contact me (sergiocalde94@gmail.com)**, in the future I will upload a file to explain how this would work.

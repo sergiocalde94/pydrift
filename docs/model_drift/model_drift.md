@@ -1,6 +1,6 @@
 # Model Drift
 
-¿What does model drift meaning in pydrift?
+¿What is the meaning of `model drift` in pydrift?
 
 # Definition
 
@@ -8,9 +8,9 @@ Model drifting is all related to your features relation with your target drift, 
 
 The most common use case is when you train a model with a dataset, let's call it `df_train` and you want to apply your model to other dataset, for example `df_test`.
 
-If the data you used for training your model has different patterns with your target that the ones in the data when you apply the model, your model performance will be poor.
+If the data you used for training your model has different patterns with your target that the ones in the data when you apply the model, then your model performance will be poor.
 
-So model drift part of `pydrift` helps you to get this changes that every feature has and understanding why your model is not working well.
+So model drift part of `pydrift` helps you to detect this changes that every feature has and understanding why your model is not working well.
 
 ![General Use Case](../images/general_use_case.png)
 
@@ -25,9 +25,9 @@ For example if you train a model with data in which the variable 'A' has a posit
 
 # Change in features relation or a very complex model (overfitting problem)
 
-This steps apply the model you have already train to the test data and compute metrics for both datasets, if the performance in both datasets is not similar you have an overfitting problem, and can be simplified in just two reasons:
+This steps apply the model you have already trained to the test data and compute metrics for both datasets, if the performance in both datasets is not similar you have an overfitting problem, and can be simplified in just two reasons:
 
-- Change in the relationships between features and target
+- Change in the relations between features and target
 - You've trained a more complex model than it should be
 
 # Interaction between features drift (discriminative model)
