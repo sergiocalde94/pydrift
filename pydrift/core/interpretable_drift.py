@@ -2,6 +2,7 @@ import shap
 import warnings
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 try:
     import plotly.express as px
     import plotly.graph_objects as go
@@ -17,6 +18,7 @@ else:
 from typing import List, Union, Dict, Tuple
 from shap.common import SHAPError
 from sklearn.pipeline import Pipeline
+from pathlib import Path
 
 from ..models import ScikitModel
 from ..decorators import check_optional_module
@@ -92,9 +94,12 @@ class InterpretableDrift:
 
         self.shap_values = explainer.shap_values(**shap_values_arguments)
 
-    def most_discriminative_features_plot(self) -> None:
+    def most_discriminative_features_plot(self,
+                                          save_plot_path: Path = None) -> None:
         """Plots most discriminative features with its
         shap values
+
+        You can save the plot in `save_plot_path` path
         """
         if self.shap_values.size == 0:
             self.compute_shap_values()
@@ -102,19 +107,26 @@ class InterpretableDrift:
         shap.summary_plot(self.shap_values,
                           self.X_test_to_shap,
                           plot_type='bar',
-                          title='Most Discriminative Features')
+                          title='Most Discriminative Features',
+                          show=True if not save_plot_path else False)
+
+        if save_plot_path:
+            plt.savefig(save_plot_path)
 
     @check_optional_module(has_module=_has_plotly,
                            exception_message=_plotly_exception_message)
     def both_histogram_plot(self,
                             column: str,
                             fillna_value: Union[str, float, int] = None,
-                            nbins: int = None) -> None:
+                            nbins: int = None,
+                            save_plot_path: Path = None) -> None:
         """Plots histogram for the column passed
         in `column`
 
         You can set `nbins` to any number that makes
         your plot better
+
+        You can save the plot in `save_plot_path` path
 
         Requires `plotly`
         """
@@ -155,20 +167,26 @@ class InterpretableDrift:
 
         fig.update_layout(bargroupgap=.1)
 
-        fig.show()
+        if save_plot_path:
+            fig.write_html(save_plot_path)
+        else:
+            fig.show()
 
     @check_optional_module(has_module=_has_plotly,
                            exception_message=_plotly_exception_message)
     def feature_importance_vs_drift_map_plot(
             self,
             dict_each_column_drift_coefficient: Dict[str, float],
-            top: int = 10) -> None:
+            top: int = 10,
+            save_plot_path: Path = None) -> None:
         """Feature importance versus drift coefficient map,
         with this plot you can visualize the most critical
         features involved in your model drift process
 
         By default shows you the top 10 most important features
         but you can customize it with `top` parameter
+
+        You can save the plot in `save_plot_path` path
         """
         df_feature_importance = pd.DataFrame(
             zip(self.column_names,
@@ -270,25 +288,31 @@ class InterpretableDrift:
             yaxis=dict(range=[axis_value_min - .1, axis_value_max + .1])
         )
 
-        fig.show()
+        if save_plot_path:
+            fig.write_html(save_plot_path)
+        else:
+            fig.show()
 
     @staticmethod
     @check_optional_module(has_module=_has_plotly,
                            exception_message=_plotly_exception_message)
-    def weights_plot(weights: np.array) -> None:
-        """Feature importance versus drift coefficient map,
-        with this plot you can visualize the most critical
-        features involved in your model drift process
+    def weights_plot(weights: np.array, save_plot_path: Path = None) -> None:
+        """Weights plot, the higher the weight, the more
+        similar the train data is to the test data
 
-        By default shows you the top 10 most important features
-        but you can customize it with `top` parameter
+        This will be used to retrain the model
+
+        You can save the plot in `save_plot_path` path
         """
         fig = px.histogram(weights,
                            title='Weights From The Discriminative Model')
 
         fig.update_layout(showlegend=False)
 
-        fig.show()
+        if save_plot_path:
+            fig.write_html(save_plot_path)
+        else:
+            fig.show()
 
     @staticmethod
     def _drop_outliers_between(
@@ -323,9 +347,12 @@ class InterpretableDrift:
             self,
             feature: str,
             percentiles: Tuple[float, float] = (.05, .95),
-            max_bins: int = 25) -> None:
+            max_bins: int = 25,
+            save_plot_path: Path = None) -> None:
         """Partial dependence plot for `feature` in
         both datasets predictions
+
+        You can save the plot in `save_plot_path` path
         """
         X_train_copy = self.X_train.copy()
         X_test_copy = self.X_test.copy()
@@ -401,17 +428,23 @@ class InterpretableDrift:
         fig.update_layout(title=f'Partial Dependence For {feature}',
                           bargroupgap=.1)
 
-        fig.show()
+        if save_plot_path:
+            fig.write_html(save_plot_path)
+        else:
+            fig.show()
 
     @check_optional_module(has_module=_has_plotly,
                            exception_message=_plotly_exception_message)
     def drift_by_sorted_bins_plot(self,
                                   feature: str,
-                                  bins: int = 10) -> None:
+                                  bins: int = 10,
+                                  save_plot_path: Path = None) -> None:
         """Concat all the data in both dataframes and
         sort it by `feature`, then it cuts in `bins`
         number of bins and computes quantity of registers
         in each bin
+
+        You can save the plot in `save_plot_path` path
         """
         X_train_copy = self.X_train.copy()
         X_test_copy = self.X_test.copy()
@@ -453,4 +486,7 @@ class InterpretableDrift:
                           bargroupgap=.1,
                           xaxis=dict(tickmode='linear'))
 
-        fig.show()
+        if save_plot_path:
+            fig.write_html(save_plot_path)
+        else:
+            fig.show()

@@ -11,6 +11,7 @@ from scipy import stats
 from collections import defaultdict, namedtuple
 from typing import List
 from functools import partial
+from pathlib import Path
 
 from .interpretable_drift import InterpretableDrift
 from ..constants import RANDOM_STATE
@@ -93,7 +94,8 @@ class DriftChecker(abc.ABC):
                                   ml_discriminate_model: ScikitModel = None,
                                   column_names: List[str] = None,
                                   auc_threshold: float = .1,
-                                  new_target_column: str = 'is_left') -> bool:
+                                  new_target_column: str = 'is_left',
+                                  save_plot_path: Path = None) -> bool:
         """Creates a machine learning model based in `sklearn`,
         this model will be a classification model that will try
         to predict if a register is from `left_data` or `right_data`
@@ -177,7 +179,9 @@ class DriftChecker(abc.ABC):
         )
 
         if not self.minimal:
-            self.interpretable_drift.most_discriminative_features_plot()
+            self.interpretable_drift.most_discriminative_features_plot(
+                save_plot_path=save_plot_path
+            )
 
         is_there_drift = symmetric_auc(auc_drift_check_model) > auc_threshold
 
@@ -583,7 +587,8 @@ class ModelDriftChecker(DriftChecker):
 
         return is_there_drift
 
-    def show_feature_importance_vs_drift_map_plot(self, top: int = 10) -> None:
+    def show_feature_importance_vs_drift_map_plot(
+            self, top: int = 10, save_plot_path: Path = None) -> None:
         """Shows feature importance versus drift coefficient
         map
 
@@ -608,9 +613,11 @@ class ModelDriftChecker(DriftChecker):
             dict_each_column_drift_coefficient=(
                 data_drift_checker.dict_each_column_drift_coefficients
             ),
-            top=top))
+            top=top,
+            save_plot_path=save_plot_path))
 
-    def sample_weight_for_retrain(self) -> np.array:
+    def sample_weight_for_retrain(self,
+                                  save_plot_path: Path = None) -> np.array:
         """If you need to retrain your model maybe
         it's better applying this weights when you
         do it
@@ -645,7 +652,7 @@ class ModelDriftChecker(DriftChecker):
         if not self.minimal:
             (self
              .interpretable_drift
-             .weights_plot(weights))
+             .weights_plot(weights, save_plot_path=save_plot_path))
 
             print('Higher the weight for the observation, '
                   'more is it similar to the test data')
