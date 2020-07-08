@@ -111,7 +111,7 @@ class InterpretableDrift:
                           show=True if not save_plot_path else False)
 
         if save_plot_path:
-            plt.savefig(save_plot_path)
+            plt.savefig(save_plot_path, bbox_inches='tight')
 
     @check_optional_module(has_module=_has_plotly,
                            exception_message=_plotly_exception_message)
