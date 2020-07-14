@@ -87,6 +87,7 @@ class DriftChecker(abc.ABC):
                              .columns)
 
         self.ml_discriminate_model = None
+        self.auc_discriminate_model = None
         self.drift = False
         self.interpretable_drift = None
 
@@ -163,9 +164,10 @@ class DriftChecker(abc.ABC):
 
         y_score = self.ml_discriminate_model.predict_proba(X_test)[:, 1]
 
-        auc_drift_check_model = roc_auc_score(y_true=y_test, y_score=y_score)
+        self.auc_discriminate_model = roc_auc_score(y_true=y_test,
+                                                    y_score=y_score)
 
-        self.drift = (symmetric_auc(auc_drift_check_model)
+        self.drift = (symmetric_auc(self.auc_discriminate_model)
                       < symmetric_auc(auc_threshold))
 
         self.interpretable_drift = InterpretableDrift(
@@ -183,7 +185,9 @@ class DriftChecker(abc.ABC):
                 save_plot_path=save_plot_path
             )
 
-        is_there_drift = symmetric_auc(auc_drift_check_model) > auc_threshold
+        is_there_drift = (
+                symmetric_auc(self.auc_discriminate_model) > auc_threshold
+        )
 
         if self.verbose:
             print(
@@ -194,7 +198,7 @@ class DriftChecker(abc.ABC):
                 end='\n\n'
             )
 
-            print(f'AUC drift check model: {auc_drift_check_model:.2f}')
+            print(f'AUC drift check model: {self.auc_discriminate_model:.2f}')
             print(f'AUC threshold: .5 ± {auc_threshold:.2f}')
 
         return is_there_drift
