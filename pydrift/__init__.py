@@ -5,4 +5,4 @@ from .core.interpretable_drift import InterpretableDrift
 from .core.drift_checker_estimator import DriftCheckerEstimator
 
 
-__version__ = '0.2.8'
+__version__ = '0.2.9'

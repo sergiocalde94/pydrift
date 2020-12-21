@@ -16,7 +16,6 @@ else:
     _plotly_exception_message = None
 
 from typing import List, Union, Dict, Tuple
-from shap.common import SHAPError
 from sklearn.pipeline import Pipeline
 from pathlib import Path
 
@@ -76,7 +75,7 @@ class InterpretableDrift:
                 )
 
                 shap_values_arguments = dict(X=self.X_test_to_shap)
-            except SHAPError:
+            except Exception:
                 def model_predict(data_array):
                     data_frame = pd.DataFrame(data_array,
                                               columns=self.column_names)
