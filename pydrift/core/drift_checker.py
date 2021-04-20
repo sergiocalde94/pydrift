@@ -603,6 +603,7 @@ class ModelDriftChecker(DriftChecker):
 
             `pydrift.InterpretableDrift.feature_importance_vs_drift_map_plot`
         """
+        if(not self.minimal): raise Exception("To plot drift map, set minimal argument to True when instantiating ModelDriftChecker") 
         data_drift_checker = DataDriftChecker(self.df_left_data,
                                               self.df_right_data,
                                               verbose=False,
