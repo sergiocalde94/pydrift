@@ -125,7 +125,7 @@ class InterpretableDrift:
         You can set `nbins` to any number that makes
         your plot better
 
-        You can save the plot in `save_plot_path` path
+        You can save the plot as html file in `save_plot_path` path
 
         Requires `plotly`
         """
@@ -185,7 +185,7 @@ class InterpretableDrift:
         By default shows you the top 10 most important features
         but you can customize it with `top` parameter
 
-        You can save the plot in `save_plot_path` path
+        You can save the plot as html file in `save_plot_path` path
         """
         df_feature_importance = pd.DataFrame(
             zip(self.column_names,
@@ -301,7 +301,7 @@ class InterpretableDrift:
 
         This will be used to retrain the model
 
-        You can save the plot in `save_plot_path` path
+        You can save the plot as html file in `save_plot_path` path
         """
         fig = px.histogram(weights,
                            title='Weights From The Discriminative Model')
@@ -351,7 +351,7 @@ class InterpretableDrift:
         """Partial dependence plot for `feature` in
         both datasets predictions
 
-        You can save the plot in `save_plot_path` path
+        You can save the plot as html file in `save_plot_path` path
         """
         X_train_copy = self.X_train.copy()
         X_test_copy = self.X_test.copy()
@@ -443,7 +443,7 @@ class InterpretableDrift:
         number of bins and computes quantity of registers
         in each bin
 
-        You can save the plot in `save_plot_path` path
+        You can save the plot as html file in `save_plot_path` path
         """
         X_train_copy = self.X_train.copy()
         X_test_copy = self.X_test.copy()
