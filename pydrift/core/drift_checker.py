@@ -523,7 +523,8 @@ class ModelDriftChecker(DriftChecker):
 
     def check_model(self,
                     column_names: List[str] = None,
-                    new_target_column: str = 'is_left') -> bool:
+                    new_target_column: str = 'is_left', 
+                   save_plot_path: Path = None) -> bool:
         """Checks if features relations with target are the same
         for `self.df_left_data` and `self.df_right_data`
 
@@ -570,7 +571,7 @@ class ModelDriftChecker(DriftChecker):
 
             (self
              .interpretable_drift_classifier_model
-             .most_discriminative_features_plot())
+             .most_discriminative_features_plot(save_plot_path = save_plot_pat))
 
         is_there_drift = abs(auc_left - auc_right) > self.auc_threshold
 
