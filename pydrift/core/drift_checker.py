@@ -571,7 +571,7 @@ class ModelDriftChecker(DriftChecker):
 
             (self
              .interpretable_drift_classifier_model
-             .most_discriminative_features_plot(save_plot_path = save_plot_pat))
+             .most_discriminative_features_plot(save_plot_path = save_plot_path))
 
         is_there_drift = abs(auc_left - auc_right) > self.auc_threshold
 
