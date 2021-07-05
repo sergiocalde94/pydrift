@@ -162,10 +162,13 @@ class DriftChecker(abc.ABC):
 
         self.ml_discriminate_model.fit(X_train, y_train)
 
-        y_score = self.ml_discriminate_model.predict_proba(X_test)[:, 1]
+        self.y_score_left = (
+            self.ml_discriminate_model.predict_proba(X_test)[:, 1]
+        )
 
-        self.auc_discriminate_model = roc_auc_score(y_true=y_test,
-                                                    y_score=y_score)
+        self.auc_discriminate_model = roc_auc_score(
+            y_true=y_test, y_score=self.y_score_left
+        )
 
         self.drift = (symmetric_auc(self.auc_discriminate_model)
                       < symmetric_auc(auc_threshold))
@@ -523,8 +526,8 @@ class ModelDriftChecker(DriftChecker):
 
     def check_model(self,
                     column_names: List[str] = None,
-                    new_target_column: str = 'is_left', 
-                   save_plot_path: Path = None) -> bool:
+                    new_target_column: str = 'is_left',
+                    save_plot_path: Path = None) -> bool:
         """Checks if features relations with target are the same
         for `self.df_left_data` and `self.df_right_data`
 
@@ -537,15 +540,15 @@ class ModelDriftChecker(DriftChecker):
         X_right = self.df_right_data.drop(columns=self.target_column_name)
         y_right = self.df_right_data[self.target_column_name]
 
-        self.y_score_left = (self
-                             .ml_classifier_model
-                             .predict_proba(X_left)[:, 1])
+        y_score_left = (self
+                        .ml_classifier_model
+                        .predict_proba(X_left)[:, 1])
 
         y_score_right = (self
                          .ml_classifier_model
                          .predict_proba(X_right)[:, 1])
 
-        auc_left = roc_auc_score(y_true=y_left, y_score=self.y_score_left)
+        auc_left = roc_auc_score(y_true=y_left, y_score=y_score_left)
         auc_right = roc_auc_score(y_true=y_right, y_score=y_score_right)
 
         if not self.minimal:
@@ -571,7 +574,7 @@ class ModelDriftChecker(DriftChecker):
 
             (self
              .interpretable_drift_classifier_model
-             .most_discriminative_features_plot(save_plot_path = save_plot_path))
+             .most_discriminative_features_plot(save_plot_path=save_plot_path))
 
         is_there_drift = abs(auc_left - auc_right) > self.auc_threshold
 
@@ -604,7 +607,12 @@ class ModelDriftChecker(DriftChecker):
 
             `pydrift.InterpretableDrift.feature_importance_vs_drift_map_plot`
         """
-        if(not self.minimal): raise Exception("To plot drift map, set minimal argument to True when instantiating ModelDriftChecker") 
+        if self.minimal:
+            raise Exception(
+                'To plot drift map, set minimal argument to False when '
+                'instantiating ModelDriftChecker'
+            )
+
         data_drift_checker = DataDriftChecker(self.df_left_data,
                                               self.df_right_data,
                                               verbose=False,
