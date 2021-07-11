@@ -129,11 +129,6 @@ class InterpretableDrift:
 
         Requires `plotly`
         """
-        if not _has_plotly:
-            raise ModuleNotFoundError(
-
-            )
-
         X_train_column = self.X_train.loc[:, [column]]
         X_test_column = self.X_test.loc[:, [column]]
 

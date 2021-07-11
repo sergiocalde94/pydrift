@@ -17,3 +17,12 @@ def check_optional_module(_func=None,
         return decorator_check_optional_module
     else:
         return decorator_check_optional_module(_func)
+
+
+def track_calls(func):
+    @wraps(func)
+    def wrapper_track_calls(*args, **kwargs):
+        wrapper_track_calls.has_been_called = True
+        return func(*args, **kwargs)
+    wrapper_track_calls.has_been_called = False
+    return wrapper_track_calls

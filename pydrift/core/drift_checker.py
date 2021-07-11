@@ -3,8 +3,8 @@ import warnings
 import pandas as pd
 import numpy as np
 
-from sklearn.base import is_classifier
-from sklearn.model_selection import train_test_split
+from sklearn.base import is_classifier, clone
+from sklearn.model_selection import train_test_split, StratifiedKFold
 from sklearn.metrics import roc_auc_score
 from catboost import CatBoostClassifier
 from scipy import stats
@@ -17,6 +17,7 @@ from .interpretable_drift import InterpretableDrift
 from ..constants import RANDOM_STATE
 from ..exceptions import ColumnsNotMatchException
 from ..models import ScikitModel, cat_features_fillna
+from ..decorators import track_calls
 
 
 Coordinates = namedtuple('Coordinates', 'x0 x1 y0 y1')
@@ -91,6 +92,7 @@ class DriftChecker(abc.ABC):
         self.drift = False
         self.interpretable_drift = None
 
+    @track_calls
     def ml_model_can_discriminate(self,
                                   ml_discriminate_model: ScikitModel = None,
                                   column_names: List[str] = None,
@@ -134,8 +136,13 @@ class DriftChecker(abc.ABC):
              self.df_right_data.assign(**{new_target_column: 0})]
         )
 
-        X = df_all_data_with_target.drop(columns=new_target_column)
-        y = df_all_data_with_target[new_target_column]
+        self.X_all_data_with_target = (
+            df_all_data_with_target.drop(columns=new_target_column)
+        )
+
+        self.y_all_data_with_target = (
+            df_all_data_with_target[new_target_column]
+        )
 
         if not ml_discriminate_model:
             self.ml_discriminate_model = CatBoostClassifier(
@@ -146,7 +153,9 @@ class DriftChecker(abc.ABC):
                 verbose=False
             )
 
-            X = cat_features_fillna(X, self.cat_features)
+            self.X_all_data_with_target = cat_features_fillna(
+                self.X_all_data_with_target, self.cat_features
+            )
         else:
             self.ml_discriminate_model = ml_discriminate_model
 
@@ -157,17 +166,20 @@ class DriftChecker(abc.ABC):
             )
 
         X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=.5, random_state=RANDOM_STATE
+            self.X_all_data_with_target,
+            self.y_all_data_with_target,
+            test_size=.5,
+            random_state=RANDOM_STATE
         )
 
         self.ml_discriminate_model.fit(X_train, y_train)
 
-        self.y_score_left = (
+        y_score_left = (
             self.ml_discriminate_model.predict_proba(X_test)[:, 1]
         )
 
         self.auc_discriminate_model = roc_auc_score(
-            y_true=y_test, y_score=self.y_score_left
+            y_true=y_test, y_score=y_score_left
         )
 
         self.drift = (symmetric_auc(self.auc_discriminate_model)
@@ -522,7 +534,6 @@ class ModelDriftChecker(DriftChecker):
         self.target_column_name = target_column_name
         self.auc_threshold = auc_threshold
         self.interpretable_drift_classifier_model = None
-        self.y_score_left = None
 
     def check_model(self,
                     column_names: List[str] = None,
@@ -608,7 +619,7 @@ class ModelDriftChecker(DriftChecker):
             `pydrift.InterpretableDrift.feature_importance_vs_drift_map_plot`
         """
         if self.minimal:
-            raise Exception(
+            raise ValueError(
                 'To plot drift map, set minimal argument to False when '
                 'instantiating ModelDriftChecker'
             )
@@ -654,13 +665,46 @@ class ModelDriftChecker(DriftChecker):
         # Temporary change `self.verbose` to avoid confusing plots
         actual_verbose, self.verbose = self.verbose, False
 
-        self.ml_model_can_discriminate()
+        if not self.ml_model_can_discriminate.has_been_called:
+            self.ml_model_can_discriminate()
+
+        skf = StratifiedKFold(n_splits=5,
+                              shuffle=True,
+                              random_state=RANDOM_STATE)
+
+        ml_discriminator = clone(self.ml_discriminate_model)
+
+        df_predictions_all_folds = pd.DataFrame(columns=['prediction'])
+
+        for train_idx, test_idx in skf.split(self.X_all_data_with_target,
+                                             self.y_all_data_with_target):
+            X_fold_train, X_fold_test = (
+                self.X_all_data_with_target.iloc[train_idx],
+                self.X_all_data_with_target.iloc[test_idx]
+            )
+
+            y_fold_train = self.y_all_data_with_target.iloc[train_idx]
+
+            ml_discriminator.fit(X_fold_train, y_fold_train)
+
+            df_predictions_all_folds = (
+                df_predictions_all_folds
+                .append(
+                    pd.DataFrame(
+                        ml_discriminator.predict_proba(X_fold_test)[:, 1],
+                        index=X_fold_test.index,
+                        columns=['prediction'])
+                )
+            )
+
+        # Only left data scores are needed
+        y_score_left = df_predictions_all_folds.loc[self.df_left_data.index]
 
         # Reset verbose and minimal values
         self.minimal = actual_self_minimal
         self.verbose = actual_verbose
 
-        weights = (1 / self.y_score_left) - 1
+        weights = (1 / y_score_left) - 1
         weights /= np.mean(weights)
 
         if not self.minimal:
