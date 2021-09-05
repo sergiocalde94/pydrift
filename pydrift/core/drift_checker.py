@@ -134,7 +134,7 @@ class DriftChecker(abc.ABC):
         df_all_data_with_target = pd.concat(
             [self.df_left_data.assign(**{new_target_column: 1}),
              self.df_right_data.assign(**{new_target_column: 0})],
-            ignore_index=True # This is to avoid index repetition
+            ignore_index=True  # This is to avoid index repetition
         )
 
         self.X_all_data_with_target = (
@@ -218,7 +218,7 @@ class DriftChecker(abc.ABC):
             print(f'AUC threshold: .5 ± {auc_threshold:.2f}')
 
         return is_there_drift
-    
+
     def sample_weight_for_retrain(self,
                                   save_plot_path: Path = None) -> np.array:
         """If you need to retrain your model maybe
@@ -242,7 +242,7 @@ class DriftChecker(abc.ABC):
         actual_self_minimal, self.minimal = self.minimal, True
         # Temporary change `self.verbose` to avoid confusing plots
         actual_verbose, self.verbose = self.verbose, False
-        
+
         if not id(self) in self.ml_model_can_discriminate.has_been_called_ids:
             self.ml_model_can_discriminate()
 
@@ -253,7 +253,7 @@ class DriftChecker(abc.ABC):
         ml_discriminator = clone(self.ml_discriminate_model)
 
         df_predictions_all_folds = pd.DataFrame(columns=['prediction'])
-        
+
         for train_idx, test_idx in skf.split(self.X_all_data_with_target,
                                              self.y_all_data_with_target):
             X_fold_train, X_fold_test = (
@@ -264,7 +264,7 @@ class DriftChecker(abc.ABC):
             y_fold_train = self.y_all_data_with_target.iloc[train_idx]
 
             ml_discriminator.fit(X_fold_train, y_fold_train)
-            
+
             df_predictions_all_folds = (
                 df_predictions_all_folds
                 .append(
