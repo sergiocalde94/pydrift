@@ -22,7 +22,7 @@ def check_optional_module(_func=None,
 def track_calls(func):
     @wraps(func)
     def wrapper_track_calls(*args, **kwargs):
-        wrapper_track_calls.has_been_called = True
+        wrapper_track_calls.has_been_called_ids.append(id(args[0]))
         return func(*args, **kwargs)
-    wrapper_track_calls.has_been_called = False
+    wrapper_track_calls.has_been_called_ids = []
     return wrapper_track_calls

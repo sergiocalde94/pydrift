@@ -133,7 +133,8 @@ class DriftChecker(abc.ABC):
 
         df_all_data_with_target = pd.concat(
             [self.df_left_data.assign(**{new_target_column: 1}),
-             self.df_right_data.assign(**{new_target_column: 0})]
+             self.df_right_data.assign(**{new_target_column: 0})],
+            ignore_index=True # This is to avoid index repetition
         )
 
         self.X_all_data_with_target = (
@@ -217,6 +218,83 @@ class DriftChecker(abc.ABC):
             print(f'AUC threshold: .5 ± {auc_threshold:.2f}')
 
         return is_there_drift
+    
+    def sample_weight_for_retrain(self,
+                                  save_plot_path: Path = None) -> np.array:
+        """If you need to retrain your model maybe
+        it's better applying this weights when you
+        do it
+
+        From https://bit.ly/2Xf39ks (thanks!):
+
+            We can use this w as sample weights in any of our
+            classifier to increase the weight of these observation
+            which seems similar to our test data. Intuitively this
+            makes sense as our model will focus more on capturing
+            patterns from the observations which seems similar to our test.
+
+        An example with random forest:
+
+            rf = RandomForestClassifier(**rf_params)
+            rf.fit(X_train, y_train, sample_weight=weights)
+        """
+        # Temporary change `self.minimal` to avoid confusing plots
+        actual_self_minimal, self.minimal = self.minimal, True
+        # Temporary change `self.verbose` to avoid confusing plots
+        actual_verbose, self.verbose = self.verbose, False
+        
+        if not id(self) in self.ml_model_can_discriminate.has_been_called_ids:
+            self.ml_model_can_discriminate()
+
+        skf = StratifiedKFold(n_splits=5,
+                              shuffle=True,
+                              random_state=RANDOM_STATE)
+
+        ml_discriminator = clone(self.ml_discriminate_model)
+
+        df_predictions_all_folds = pd.DataFrame(columns=['prediction'])
+        
+        for train_idx, test_idx in skf.split(self.X_all_data_with_target,
+                                             self.y_all_data_with_target):
+            X_fold_train, X_fold_test = (
+                self.X_all_data_with_target.iloc[train_idx],
+                self.X_all_data_with_target.iloc[test_idx]
+            )
+
+            y_fold_train = self.y_all_data_with_target.iloc[train_idx]
+
+            ml_discriminator.fit(X_fold_train, y_fold_train)
+            
+            df_predictions_all_folds = (
+                df_predictions_all_folds
+                .append(
+                    pd.DataFrame(
+                        ml_discriminator.predict_proba(X_fold_test)[:, 1],
+                        index=X_fold_test.index,
+                        columns=['prediction']
+                    )
+                )
+            )
+
+        # Only left data scores are needed
+        y_score_left = df_predictions_all_folds.iloc[self.df_left_data.index]
+
+        # Reset verbose and minimal values
+        self.minimal = actual_self_minimal
+        self.verbose = actual_verbose
+
+        weights = (1 / y_score_left) - 1
+        weights /= np.mean(weights)
+
+        if not self.minimal:
+            (self
+             .interpretable_drift
+             .weights_plot(weights, save_plot_path=save_plot_path))
+
+            print('Higher the weight for the observation, '
+                  'more is it similar to the test data')
+
+        return weights
 
 
 class DataDriftChecker(DriftChecker):
@@ -640,79 +718,3 @@ class ModelDriftChecker(DriftChecker):
             ),
             top=top,
             save_plot_path=save_plot_path))
-
-    def sample_weight_for_retrain(self,
-                                  save_plot_path: Path = None) -> np.array:
-        """If you need to retrain your model maybe
-        it's better applying this weights when you
-        do it
-
-        From https://bit.ly/2Xf39ks (thanks!):
-
-            We can use this w as sample weights in any of our
-            classifier to increase the weight of these observation
-            which seems similar to our test data. Intuitively this
-            makes sense as our model will focus more on capturing
-            patterns from the observations which seems similar to our test.
-
-        An example with random forest:
-
-            rf = RandomForestClassifier(**rf_params)
-            rf.fit(X_train, y_train, sample_weight=weights)
-        """
-        # Temporary change `self.minimal` to avoid confusing plots
-        actual_self_minimal, self.minimal = self.minimal, True
-        # Temporary change `self.verbose` to avoid confusing plots
-        actual_verbose, self.verbose = self.verbose, False
-
-        if not self.ml_model_can_discriminate.has_been_called:
-            self.ml_model_can_discriminate()
-
-        skf = StratifiedKFold(n_splits=5,
-                              shuffle=True,
-                              random_state=RANDOM_STATE)
-
-        ml_discriminator = clone(self.ml_discriminate_model)
-
-        df_predictions_all_folds = pd.DataFrame(columns=['prediction'])
-
-        for train_idx, test_idx in skf.split(self.X_all_data_with_target,
-                                             self.y_all_data_with_target):
-            X_fold_train, X_fold_test = (
-                self.X_all_data_with_target.iloc[train_idx],
-                self.X_all_data_with_target.iloc[test_idx]
-            )
-
-            y_fold_train = self.y_all_data_with_target.iloc[train_idx]
-
-            ml_discriminator.fit(X_fold_train, y_fold_train)
-
-            df_predictions_all_folds = (
-                df_predictions_all_folds
-                .append(
-                    pd.DataFrame(
-                        ml_discriminator.predict_proba(X_fold_test)[:, 1],
-                        index=X_fold_test.index,
-                        columns=['prediction'])
-                )
-            )
-
-        # Only left data scores are needed
-        y_score_left = df_predictions_all_folds.loc[self.df_left_data.index]
-
-        # Reset verbose and minimal values
-        self.minimal = actual_self_minimal
-        self.verbose = actual_verbose
-
-        weights = (1 / y_score_left) - 1
-        weights /= np.mean(weights)
-
-        if not self.minimal:
-            (self
-             .interpretable_drift
-             .weights_plot(weights, save_plot_path=save_plot_path))
-
-            print('Higher the weight for the observation, '
-                  'more is it similar to the test data')
-
-        return weights
