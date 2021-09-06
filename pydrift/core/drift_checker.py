@@ -277,7 +277,7 @@ class DriftChecker(abc.ABC):
             )
 
         # Only left data scores are needed
-        y_score_left = df_predictions_all_folds.iloc[self.df_left_data.index]
+        y_score_left = df_predictions_all_folds.loc[self.df_left_data.index]
 
         # Reset verbose and minimal values
         self.minimal = actual_self_minimal
