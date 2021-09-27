@@ -25,9 +25,11 @@ X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=.5, random_state=RANDOM_STATE, stratify=y
 )
 
-cat_features = (X
-                .select_dtypes(include=['category', 'object'])
-                .columns)
+cat_features = list(
+    X
+    .select_dtypes(include=['category', 'object'])
+    .columns
+)
 
 X_filled = cat_features_fillna(X, cat_features)
 
@@ -62,7 +64,8 @@ def test_estimator_drift_ko():
         df_train_filled = pd.concat([X_filled_train, y_train], axis=1)
         df_train_filled_drifted = df_train_filled[
             (df_train_filled['Pclass'] > 1) & (
-                    df_train_filled['Fare'] > 10)].copy()
+                    df_train_filled['Fare'] > 10)
+        ].copy()
 
         X_train_filled_drifted = df_train_filled_drifted.drop(columns=TARGET)
         y_train_filled_drifted = df_train_filled_drifted[TARGET]
@@ -70,7 +73,8 @@ def test_estimator_drift_ko():
         df_test_filled = pd.concat([X_filled_test, y_test], axis=1)
         df_test_filled_drifted = df_test_filled[
             ~(df_test_filled['Pclass'] > 1) & (
-                    df_test_filled['Fare'] > 10)].copy()
+                    df_test_filled['Fare'] > 10)
+        ].copy()
 
         X_test_filled_drifted = df_test_filled_drifted.drop(columns=TARGET)
 
@@ -84,7 +88,7 @@ def test_estimator_drift_ko():
 
         pipeline_catboost_drift_checker = make_pipeline(
             DriftCheckerEstimator(ml_classifier_model=ml_classifier_model,
-                                  column_names=X.columns,
+                                  column_names=X.columns.tolist(),
                                   minimal=True)
         )
 
@@ -102,7 +106,6 @@ def test_data_drift_ok():
 
     data_drift_checker_ok.check_categorical_columns()
 
-    print(data_drift_checker_ok.dict_each_column_pvalues_categorical)
     assert not data_drift_checker_ok.ml_model_can_discriminate()
     assert not data_drift_checker_ok.check_numerical_columns()
     assert not data_drift_checker_ok.check_categorical_columns()
@@ -173,7 +176,7 @@ def test_estimator_drift_ok():
 
     pipeline_catboost_drift_checker = make_pipeline(
         DriftCheckerEstimator(ml_classifier_model=ml_classifier_model,
-                              column_names=X.columns,
+                              column_names=X.columns.tolist(),
                               minimal=True)
     )
 

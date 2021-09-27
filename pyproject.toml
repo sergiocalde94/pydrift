@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pydrift"
-version = "0.2.14"
+version = "0.2.15"
 description = "How do we measure the degradation of a machine learning process? Why does the performance of our predictive models decrease? Maybe it is that a data source has changed (one or more variables) or maybe what changes is the relationship of these variables with the target we want to predict. `pydrift` tries to facilitate this task to the data scientist, performing this kind of checks and somehow measuring that degradation."
 license="MIT"
 authors = ["sergiocalde94 <sergiocalde94@gmail.com>"]
@@ -9,26 +9,28 @@ repository = "https://github.com/sergiocalde94/pydrift"
 documentation = "https://sergiocalde94.github.io/pydrift/"
 
 [tool.poetry.dependencies]
-python = "^3.6.1"
-pandas = "^1.0.3"
-scikit-learn = "^0.23.1"
-typing-extensions = { version = "^3.7.4", python = "<3.8" }
-catboost = "^0.23"
-shap = "^0.35.0"
-statsmodels = "^0.11.1"
-plotly = { version = "^4.8.1", optional = true }
+python = ">= 3.6.1"
+pandas = ">= 1.0.3"
+scikit-learn = ">= 0.23.1"
+typing-extensions = { version = ">= 3.7.4", python = "<3.8" }
+catboost = ">= 0.23"
+llvmlite = ">=0.34.0.dev"
+numba = ">=0.51.2"
+shap = ">= 0.35.0"
+statsmodels = ">= 0.11.1"
+plotly = { version = ">= 4.8.1", optional = true }
 
 [tool.poetry.dev-dependencies]
-flake8 = "^3.8.1"
-jupyter = "^1.0.0"
-pre-commit = "^2.4.0"
-pytest = "^5.4.2"
-coveralls = "^2.0.0"
-plotly = "^4.8.1"
+flake8 = ">= 3.8.1"
+jupyter = ">= 1.0.0"
+pre-commit = ">= 2.4.0"
+pytest = ">= 5.4.2"
+coveralls = ">= 2.0.0"
+plotly = ">= 4.8.1"
 
 [tool.poetry.extras]
 plotting = ["plotly"]
 
 [build-system]
-requires = ["poetry>=0.12"]
+requires = ["poetry>= 0.12"]
 build-backend = "poetry.masonry.api"
