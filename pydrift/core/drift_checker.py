@@ -81,11 +81,13 @@ class DriftChecker(abc.ABC):
 
         self.cat_features = (df_left_data
                              .select_dtypes(include=['category', 'object'])
-                             .columns)
+                             .columns
+                             .tolist())
 
         self.num_features = (df_left_data
                              .select_dtypes(include='number')
-                             .columns)
+                             .columns
+                             .tolist())
 
         self.ml_discriminate_model = None
         self.auc_discriminate_model = None
@@ -400,12 +402,12 @@ class DataDriftChecker(DriftChecker):
         )
 
         empty_num_features_and_cat_features_pvalues_filled = (
-                not self.num_features.tolist()
+                not self.num_features
                 and self.dict_each_column_pvalues_categorical
         )
 
         empty_cat_features_and_num_features_pvalues_filled = (
-                not self.cat_features.tolist()
+                not self.cat_features
                 and self.dict_each_column_pvalues_numerical
         )
 
